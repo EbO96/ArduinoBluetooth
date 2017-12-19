@@ -1,6 +1,8 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
 import android.bluetooth.BluetoothDevice
+import android.content.Context
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,16 +14,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
+import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.MyBluetooth
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
 
 class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
 
-    //UI elements
-    private lateinit var devicesListView: ListView
+    private lateinit var binding: FragmentConnectToDeviceBinding
+
     //List elements
     lateinit var arrayAdapter: ArrayAdapter<String>
     private var devices = ArrayList<String>()
@@ -29,20 +32,22 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
     private lateinit var myBluetooth: MyBluetooth
 
     private val TAG = "ConnectToDevice"
-
     private lateinit var connectHandler: Handler
+
+    private lateinit var setProperFragmentCallback: SetProperFragmentInterface
+
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        val view = inflater!!.inflate(R.layout.fragment_connect_to_device, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
         /**
          * Set devices ListView
          */
-        devicesListView = view!!.findViewById(R.id.devices_list_view)
         arrayAdapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, devices)
 
-        devicesListView.adapter = arrayAdapter
+        binding.devicesListView.adapter = arrayAdapter
 
         handleDevicesListClick()
 
@@ -55,7 +60,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
                 val msgData = msg?.data
 
                 val deviceName = msgData?.getString(DEVICE_NAME)
-                Snackbar.make(view, "${getString(R.string.connected_to_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, "${getString(R.string.connected_to_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
             }
         }
 
@@ -63,8 +68,16 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
 
         setPairedDevicesAtList()
 
-        return view
+        setProperFragmentCallback = activity as SetProperFragmentInterface
+
+        binding.terminalButton.setOnClickListener {
+            setProperFragmentCallback.setTerminalFragment()
+        }
+
+        return binding.root
     }
+
+
 
     private fun updateDevicesList(element: String) {
         devices.add(element)
@@ -81,7 +94,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
     }
 
     private fun handleDevicesListClick() {
-        devicesListView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        binding.devicesListView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             myBluetooth.connectToDevice(pairedDevices.elementAt(position))
         }
     }

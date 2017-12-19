@@ -68,7 +68,6 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
         }
     }
 
-
     fun getPairedDevices(): Set<BluetoothDevice> {
         mBluetoothAdapter?.cancelDiscovery()
         pairedDevices = mBluetoothAdapter!!.bondedDevices

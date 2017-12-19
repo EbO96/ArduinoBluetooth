@@ -1,0 +1,72 @@
+<layout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/input_layout"
+            android:layout_alignParentTop="true">
+
+            <TextView
+                android:id="@+id/terminal_text_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#000000"
+                android:padding="4dp"
+                android:textColor="#00FF00"
+                android:typeface="monospace" />
+        </ScrollView>
+
+
+        <LinearLayout
+            android:id="@+id/input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/terminal_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:hint="@string/enter_text_to_send"
+                android:imeOptions="actionSend"
+                android:inputType="textImeMultiLine"
+                android:padding="16dp"
+                android:textColor="#00ff00"
+                android:textColorHint="#00ff00" />
+
+            <ImageButton
+                android:id="@+id/clear_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="#000000"
+                android:contentDescription="@null"
+                android:padding="16dp"
+                android:src="@drawable/ic_clear_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/send_message_to_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="#000000"
+                android:contentDescription="@null"
+                android:padding="16dp"
+                android:src="@drawable/ic_send_black_24dp" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</layout>

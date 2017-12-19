@@ -16,11 +16,14 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
+import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SetProperFragmentInterface {
 
     private val TAG = "MainActivity" //Log tag
+    private val TERMINAL_TAG = "TERMINAL" //Log tag
     private val LOCATION_PERMISSION_ID = 1001
     private val ENABLE_BT_REQUEST_CODE = 1
     private var permissionCheck: Int? = null
@@ -132,6 +135,14 @@ class MainActivity : AppCompatActivity() {
         connectToDeviceFragmentCallback = currentFragment as ConnectToDeviceInterface
         transaction.replace(R.id.main_container, currentFragment)
         transaction.commit()
+    }
+
+    override fun setTerminalFragment() {
+        val transacion = fragmentManager.beginTransaction()
+        currentFragment = Terminal()
+        transacion.add(R.id.main_container, currentFragment)
+        transacion.addToBackStack(TERMINAL_TAG)
+        transacion.commit()
     }
 
     private fun turnOnBluetooth() {
