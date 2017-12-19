@@ -83,7 +83,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface {
 
         registerReceiver(bluetoothStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 
-        setConnectToDeviceFragment()
+        if (savedInstanceState == null)
+            setConnectToDeviceFragment()
     }
 
     override fun onStart() {
