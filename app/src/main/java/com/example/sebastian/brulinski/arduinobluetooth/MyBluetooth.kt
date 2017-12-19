@@ -17,14 +17,13 @@ import android.widget.Toast
 import java.io.IOException
 import java.util.*
 
-class MyBluetooth(private val activity: Activity) {
+class MyBluetooth(private val activity: Activity, handler: Handler) {
 
     var mBluetoothAdapter: BluetoothAdapter? = null
-    private val ENABLE_BT_REQUEST_CODE = 1
     private lateinit var pairedDevices: Set<BluetoothDevice>
     private var foundDevices: ArrayList<BluetoothDevice>
     private var connectThread: ConnectThread? = null
-    private var connectHandler: Handler
+    private var connectHandler = handler
 
     //Discovery devices
     private var devicesReceiver: BroadcastReceiver
@@ -44,12 +43,12 @@ class MyBluetooth(private val activity: Activity) {
             activity.finish()//finish activity
         }
 
-        if (!isBtEnabled()) {
-            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            activity.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
-        } else {
-            getPairedDevices()
-        }
+//        if (!isBtEnabled()) {
+//            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//            activity.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
+//        } else {
+//            getPairedDevices()
+//        }
 
         receiverIntentFilters = IntentFilter(BluetoothDevice.ACTION_FOUND)
         foundDevices = ArrayList()
@@ -67,21 +66,8 @@ class MyBluetooth(private val activity: Activity) {
                 }
             }
         }
-
-        connectHandler = object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message?) {
-                //keys
-                val DEVICE_NAME = "device_name"
-                val msgData = msg?.data
-
-                if (msgData!!.containsKey(DEVICE_NAME)) {
-                    val deviceName = msgData.getString(DEVICE_NAME)
-                    Toast.makeText(activity, "${activity.getString(R.string.connected_to_message)}: $deviceName",
-                            Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
+
 
     fun getPairedDevices(): Set<BluetoothDevice> {
         mBluetoothAdapter?.cancelDiscovery()
@@ -95,7 +81,7 @@ class MyBluetooth(private val activity: Activity) {
         return pairedDevices
     }
 
-    private fun connectToDevice(btDevice: BluetoothDevice) {
+    fun connectToDevice(btDevice: BluetoothDevice) {
         connectThread = ConnectThread(btDevice, connectHandler)
         connectThread?.start()
     }
@@ -113,7 +99,7 @@ class MyBluetooth(private val activity: Activity) {
         activity.unregisterReceiver(devicesReceiver)
     }
 
-    private fun isBtEnabled(): Boolean = mBluetoothAdapter!!.isEnabled
+   // private fun isBtEnabled(): Boolean = mBluetoothAdapter!!.isEnabled
 
 
     inner class ConnectThread(device: BluetoothDevice, handler: Handler) : Thread() {
