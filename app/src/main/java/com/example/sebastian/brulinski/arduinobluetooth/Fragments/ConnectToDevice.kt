@@ -1,6 +1,7 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
@@ -9,9 +10,11 @@ import android.os.Message
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewCompat
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 import com.example.sebastian.brulinski.arduinobluetooth.MyBluetooth
@@ -28,6 +31,8 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
     private lateinit var pairedDevices: Set<BluetoothDevice>
     private lateinit var myBluetooth: MyBluetooth
 
+    private var currentConnectedDevice: BluetoothDevice? = null
+
     private var discovingDevicesLayoutVisibilityState = View.GONE
 
     private val TAG = "ConnectToDevice"
@@ -39,6 +44,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
+        Log.d(TAG, "created view")
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
         setHasOptionsMenu(true)
         /**
@@ -56,11 +62,13 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
                 Looper.prepare()
 
                 //keys
-                val DEVICE_NAME = "device_name"
+                val DEVICE = "device"
                 val msgData = msg?.data
 
-                val deviceName = msgData?.getString(DEVICE_NAME)
-                Snackbar.make(binding.root, "${getString(R.string.connected_to_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
+                val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
+                currentConnectedDevice = device
+
+                Snackbar.make(binding.root, "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
             }
         }
 
@@ -95,6 +103,11 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
         super.onSaveInstanceState(outState)
     }
 
+    override fun getMyBluetooth(): MyBluetooth? = myBluetooth
+
+    override fun getConnectedDevice(): BluetoothDevice? = currentConnectedDevice
+
+    override fun getDeviceSocket(): BluetoothSocket?  = myBluetooth.getBluetoothSocket()
 
     private fun updateDevicesList(element: String) {
         devices.add(element)

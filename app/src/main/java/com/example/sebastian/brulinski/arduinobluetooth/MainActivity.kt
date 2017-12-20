@@ -2,6 +2,7 @@ package com.example.sebastian.brulinski.arduinobluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -19,8 +20,9 @@ import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevic
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 
-class MainActivity : AppCompatActivity(), SetProperFragmentInterface {
+class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalInterface {
 
     private val TAG = "MainActivity" //Log tag
     private val TERMINAL_TAG = "TERMINAL" //Log tag
@@ -134,13 +136,16 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface {
         val transaction = fragmentManager.beginTransaction()
         currentFragment = ConnectToDevice()
         connectToDeviceFragmentCallback = currentFragment as ConnectToDeviceInterface
-        transaction.replace(R.id.main_container, currentFragment)
+        transaction.add(R.id.main_container, currentFragment)
         transaction.commit()
     }
 
     override fun setTerminalFragment() {
         val transacion = fragmentManager.beginTransaction()
         currentFragment = Terminal()
+        val b = Bundle()
+        b.putParcelable("device", connectToDeviceFragmentCallback.getConnectedDevice())
+        currentFragment?.arguments = b
         transacion.add(R.id.main_container, currentFragment)
         transacion.addToBackStack(TERMINAL_TAG)
         transacion.commit()
@@ -150,4 +155,10 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface {
         val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
     }
+
+    override fun getMyBluetooth(): MyBluetooth? {
+        return connectToDeviceFragmentCallback.getMyBluetooth()
+    }
+
+    override fun getConnectedDeviceSocket(): BluetoothSocket? = connectToDeviceFragmentCallback.getDeviceSocket()
 }

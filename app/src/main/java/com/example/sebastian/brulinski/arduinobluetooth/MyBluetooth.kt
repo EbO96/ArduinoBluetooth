@@ -10,11 +10,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import java.io.IOException
+import java.io.OutputStream
 import java.util.*
 
 class MyBluetooth(private val activity: Activity, handler: Handler) {
@@ -98,7 +98,17 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
         activity.unregisterReceiver(devicesReceiver)
     }
 
-   // private fun isBtEnabled(): Boolean = mBluetoothAdapter!!.isEnabled
+    fun write(toWrite: ByteArray, socketOutputStream: OutputStream) {
+        try {
+            socketOutputStream.write(
+                    toWrite
+            )
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    // private fun isBtEnabled(): Boolean = mBluetoothAdapter!!.isEnabled
 
 
     inner class ConnectThread(device: BluetoothDevice, handler: Handler) : Thread() {
@@ -138,7 +148,7 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
             //Send connected device name to handler
             val message = Message()
             val bundle = Bundle()
-            bundle.putString("device_name", mDevice.name)
+            bundle.putParcelable("device", mDevice)
             message.data = bundle
             mHandler.handleMessage(message)
         }
