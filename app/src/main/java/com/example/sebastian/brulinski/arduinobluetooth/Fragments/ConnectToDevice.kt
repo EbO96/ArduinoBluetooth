@@ -32,7 +32,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     //List elements
     private lateinit var pairedDevices: Set<BluetoothDevice>
     private var devices = ArrayList<MyBluetoothDevice>()
-    private lateinit var myBluetooth: MyBluetooth
+    private var myBluetooth: MyBluetooth? = null
     private lateinit var devicesAdapter: DevicesAdapter
     private var connectedDeviceView: View? = null
 
@@ -44,7 +44,6 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     private lateinit var connectHandler: Handler
 
     private lateinit var setProperFragmentCallback: SetProperFragmentInterface
-
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -71,20 +70,20 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             }
         }
 
+        //Initialize class which is used to arrange bluetooth connection
         myBluetooth = MyBluetooth(activity, connectHandler)
-
         /**
          * Set devices recycler
          */
         setDevicesRecycler()
-
-        setPairedDevicesAtList()
+        setPairedDevicesAtList() //Fill list by paired bluetooth devices
 
         setProperFragmentCallback = activity as SetProperFragmentInterface
 
         binding.terminalButton.setOnClickListener {
             setProperFragmentCallback.setTerminalFragment()
         }
+
 
         binding.customAction1.text = "${getString(R.string.custom_action)} 1"
         binding.customAction2.text = "${getString(R.string.custom_action)} 2"
@@ -116,7 +115,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             if (device != null) {
                 Log.d(TAG, device.address.toString())
                 resetConnection()
-                myBluetooth.connectToDevice(device)
+                myBluetooth?.connectToDevice(device)
                 connectedDeviceView = view
             }
         }
@@ -199,18 +198,21 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         devices.add(MyBluetoothDevice(null, false,
                 MyBluetoothDevice.Companion.DeviceType.LABEL, getString(R.string.paired)))
 
-        pairedDevices = myBluetooth.getPairedDevices()
-        var connectedFlag: Boolean
-        val socket =  getMyBluetooth()?.getBluetoothSocket()
+        if(myBluetooth != null){
+            pairedDevices = myBluetooth!!.getPairedDevices()
+            var connectedFlag: Boolean
+            val socket = getMyBluetooth()?.getBluetoothSocket()
 
-        for (device in pairedDevices) {
+            for (device in pairedDevices) {
 
-            connectedFlag = if(socket != null ) socket.isConnected && socket.remoteDevice == device
-            else false
+                connectedFlag = if (socket != null) socket.isConnected && socket.remoteDevice == device
+                else false
 
-            devices.add(MyBluetoothDevice(device, connectedFlag, MyBluetoothDevice.Companion.DeviceType.PAIRED, null))
+                devices.add(MyBluetoothDevice(device, connectedFlag, MyBluetoothDevice.Companion.DeviceType.PAIRED, null))
+            }
+            devicesAdapter.notifyDataSetChanged()
         }
-        devicesAdapter.notifyDataSetChanged()
+
     }
 
 

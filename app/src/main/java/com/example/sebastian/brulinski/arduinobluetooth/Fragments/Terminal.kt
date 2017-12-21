@@ -9,12 +9,12 @@ import android.support.v4.app.Fragment
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import com.example.sebastian.brulinski.arduinobluetooth.Helper.AlertDialogHelper
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerminalBinding
+import showAlert
 import java.io.OutputStream
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
@@ -93,7 +93,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
 
     override fun update(state: MainActivity.Companion.BluetoothStates) {
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED)
-            AlertDialogHelper.showAlert(activity, "Connection with ${mDevice!!.name} lost",
+            showAlert(activity, "Connection with ${mDevice!!.name} lost",
                     getString(R.string.connection_lost_message), false,
                     getString(R.string.connect), getString(R.string.close),
                     {

@@ -2,6 +2,7 @@
 
     <android.support.v4.widget.NestedScrollView xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
+        android:background="#FAFAFA"
         android:layout_height="match_parent"
         android:scrollbars="vertical">
 
@@ -12,43 +13,57 @@
             android:orientation="vertical"
             tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice">
 
-            <RelativeLayout
-                android:id="@+id/discover_devices_layout"
+            <LinearLayout
+                android:elevation="6dp"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
+                android:layout_margin="8dp"
+                android:background="#FFFFFF"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content">
 
-                <ProgressBar
-                    android:id="@+id/discover_devices_progress_bar"
-                    style="?android:attr/progressBarStyleHorizontal"
+                <RelativeLayout
+                    android:background="#FFFFFF"
+                    android:id="@+id/discover_devices_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="24dp"
-                    android:layout_marginTop="4dp"
-                    android:background="#FAFAFA"
-                    android:indeterminate="true"
-                    android:max="100" />
-
-                <Button
-                    android:id="@+id/cancel_discovering_button"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@id/discover_devices_progress_bar"
-                    android:background="@android:color/transparent"
-                    android:paddingEnd="8dp"
-                    android:paddingLeft="0dp"
-                    android:paddingRight="8dp"
-                    android:paddingStart="0dp"
-                    android:text="@string/cancel_discovering"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                    android:textColor="@color/colorAccent" />
-            </RelativeLayout>
+                    android:visibility="visible">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/devices_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+
+                    <ProgressBar
+                        android:id="@+id/discover_devices_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#FFFFFF"
+                        android:indeterminate="true"
+                        android:max="100" />
+
+                    <Button
+                        android:id="@+id/cancel_discovering_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@id/discover_devices_progress_bar"
+                        android:background="@android:color/transparent"
+                        android:paddingEnd="8dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="8dp"
+                        android:paddingStart="0dp"
+                        android:text="@string/cancel_discovering"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                        android:textColor="@color/colorAccent" />
+                </RelativeLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:background="#FFFFFF"
+                    android:id="@+id/devices_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"

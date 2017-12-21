@@ -26,11 +26,14 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
     private var connectThread: ConnectThread? = null
     private var connectHandler = handler
 
+    private val TAG = "MyBluetooth"
+
     //Discovery devices
     private var devicesReceiver: BroadcastReceiver
     private lateinit var receiverIntentFilters: IntentFilter
 
     init {
+        Log.d(TAG, "MyBluetooth init")
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         /*
         Check whether device support bluetooth
