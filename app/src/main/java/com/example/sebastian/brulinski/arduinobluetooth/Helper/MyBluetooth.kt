@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -18,18 +19,17 @@ import java.io.IOException
 import java.io.OutputStream
 import java.util.*
 
-class MyBluetooth(private val activity: Activity, handler: Handler) {
+class MyBluetooth(private val activity: Activity, handler: Handler, discoveryDevicesReceiver: BroadcastReceiver) {
 
     var mBluetoothAdapter: BluetoothAdapter? = null
     private lateinit var pairedDevices: Set<BluetoothDevice>
-    private var foundDevices: ArrayList<BluetoothDevice>
     private var connectThread: ConnectThread? = null
     private var connectHandler = handler
 
     private val TAG = "MyBluetooth"
 
     //Discovery devices
-    private var devicesReceiver: BroadcastReceiver
+    private var devicesReceiver = discoveryDevicesReceiver
     private lateinit var receiverIntentFilters: IntentFilter
 
     init {
@@ -54,21 +54,10 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
 //            getPairedDevices()
 //        }
 
-        receiverIntentFilters = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        foundDevices = ArrayList()
-
-        //Get found devices
-        devicesReceiver = object : BroadcastReceiver() {
-
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                val action = p1!!.action
-                when (action) {
-                    BluetoothDevice.ACTION_FOUND -> {
-                        val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        foundDevices.add(extraDevice)
-                    }
-                }
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            receiverIntentFilters = IntentFilter()
+            receiverIntentFilters.addAction(BluetoothDevice.ACTION_FOUND)
+            receiverIntentFilters.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST)
         }
     }
 
@@ -93,7 +82,6 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
     fun getBluetoothSocket(): BluetoothSocket? = connectThread?.getSocket()
 
     fun discoverDevices() {
-        foundDevices.clear()
         mBluetoothAdapter?.startDiscovery()
         activity.registerReceiver(devicesReceiver, receiverIntentFilters)
     }

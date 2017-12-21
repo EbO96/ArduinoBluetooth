@@ -2,6 +2,9 @@ package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
@@ -15,6 +18,7 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
@@ -24,6 +28,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
+import java.util.*
 
 class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObserversInterface {
 
@@ -31,6 +36,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
     //List elements
     private lateinit var pairedDevices: Set<BluetoothDevice>
+    private var foundDevices = ArrayList<BluetoothDevice>()
     private var devices = ArrayList<MyBluetoothDevice>()
     private var myBluetooth: MyBluetooth? = null
     private lateinit var devicesAdapter: DevicesAdapter
@@ -70,8 +76,30 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             }
         }
 
+        //Found devices receiver
+        //Get found devices
+        val devicesReceiver = object : BroadcastReceiver() {
+
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val action = p1!!.action
+                when (action) {
+                    BluetoothDevice.ACTION_FOUND -> {
+                        val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        if (extraDevice != null) {
+                            foundDevices.add(extraDevice)
+                            devices.checkIfAlreadyFoundDeviceExist(extraDevice)
+                        }
+                    }
+                    BluetoothDevice.ACTION_PAIRING_REQUEST -> {
+                        val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        Log.d(TAG, "pair request from ${extraDevice.name}")
+                    }
+                }
+            }
+        }
+
         //Initialize class which is used to arrange bluetooth connection
-        myBluetooth = MyBluetooth(activity, connectHandler)
+        myBluetooth = MyBluetooth(activity, connectHandler, devicesReceiver)
         /**
          * Set devices recycler
          */
@@ -89,6 +117,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         binding.customAction2.text = "${getString(R.string.custom_action)} 2"
         binding.customAction3.text = "${getString(R.string.custom_action)} 3"
 
+
         if (savedInstanceState != null)
             discovingDevicesLayoutVisibilityState = savedInstanceState.getInt("discovery_layout_state")
         binding.discoverDevicesLayout.visibility = discovingDevicesLayoutVisibilityState
@@ -96,9 +125,29 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         binding.cancelDiscoveringButton.setOnClickListener {
             discovingDevicesLayoutVisibilityState = View.GONE
             binding.discoverDevicesLayout.visibility = discovingDevicesLayoutVisibilityState
+            myBluetooth?.cancelDiscovery()
         }
 
         return binding.root
+    }
+
+    private fun ArrayList<MyBluetoothDevice>.checkIfAlreadyFoundDeviceExist(device: BluetoothDevice) {
+        var addLabelFlag = true
+
+        this
+                .filter { it.label == getString(R.string.found) }
+                .forEach { addLabelFlag = false }
+
+        if (addLabelFlag)
+            this.add(MyBluetoothDevice(null, false, MyBluetoothDevice.Companion.DeviceType.LABEL, getString(R.string.found)))
+
+        this
+                .filter { it.device == device }
+                .forEach { return }
+
+        this.add(MyBluetoothDevice(device, false, MyBluetoothDevice.Companion.DeviceType.FOUND, null))
+        devicesAdapter.notifyItemInserted(this.size - 1)
+
     }
 
     private fun setDevicesRecycler() {
@@ -198,7 +247,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         devices.add(MyBluetoothDevice(null, false,
                 MyBluetoothDevice.Companion.DeviceType.LABEL, getString(R.string.paired)))
 
-        if(myBluetooth != null){
+        if (myBluetooth != null) {
             pairedDevices = myBluetooth!!.getPairedDevices()
             var connectedFlag: Boolean
             val socket = getMyBluetooth()?.getBluetoothSocket()
@@ -232,14 +281,39 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
                 if (view.visibility != View.VISIBLE) {
                     discovingDevicesLayoutVisibilityState = View.VISIBLE
                     view.visibility = discovingDevicesLayoutVisibilityState
+                    myBluetooth?.discoverDevices()
+                    deleteFoundDevices()
                 }
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
+    private fun deleteFoundDevices() {
+        var indexOfFoundLabel = -1
+
+        for (x in 0 until devices.size) {
+            if (devices[x].label == getString(R.string.found)) indexOfFoundLabel = x
+        }
+
+        val indexes = ArrayList<Int>()
+
+        if (indexOfFoundLabel != -1) {
+            indexes += indexOfFoundLabel until devices.size
+        }
+
+        Collections.sort(indexes, Collections.reverseOrder())
+        for (index in indexes) {
+            devices.removeAt(index)
+            devicesAdapter.notifyItemRemoved(index)
+        }
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        resetConnection()
+        Toast.makeText(activity, "${getString(R.string.disconnected_from_message)}: ${currentConnectedDevice?.name}", Toast.LENGTH_SHORT).show()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 
