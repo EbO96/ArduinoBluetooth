@@ -12,4 +12,9 @@
     <string name="paired">Paired</string>
     <string name="start_discovering_devices">Start discovering devices</string>
     <string name="cancel_discovering">Cancel discovering</string>
+    <string name="connection_lost_message">What you want to do?</string>
+    <string name="connect">Connect</string>
+    <string name="close">Close</string>
+    <string name="found">Found</string>
+    <string name="disconnected_from_message">Disconnected from</string>
 </resources>

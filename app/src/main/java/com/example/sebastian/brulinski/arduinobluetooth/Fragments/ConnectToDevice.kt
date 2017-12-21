@@ -9,27 +9,32 @@ import android.os.Looper
 import android.os.Message
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.support.v4.view.ViewCompat
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.*
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Toast
+import android.widget.ImageView
+import android.widget.TextView
+import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
-import com.example.sebastian.brulinski.arduinobluetooth.MyBluetooth
+import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
 
-class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
+class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObserversInterface {
 
     private lateinit var binding: FragmentConnectToDeviceBinding
 
     //List elements
-    lateinit var arrayAdapter: ArrayAdapter<String>
-    private var devices = ArrayList<String>()
     private lateinit var pairedDevices: Set<BluetoothDevice>
+    private var devices = ArrayList<MyBluetoothDevice>()
     private lateinit var myBluetooth: MyBluetooth
+    private lateinit var devicesAdapter: DevicesAdapter
+    private var connectedDeviceView: View? = null
 
     private var currentConnectedDevice: BluetoothDevice? = null
 
@@ -47,16 +52,6 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
         Log.d(TAG, "created view")
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
         setHasOptionsMenu(true)
-        /**
-         * Set devices ListView
-         */
-        arrayAdapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, devices)
-
-        binding.devicesListView.adapter = arrayAdapter
-        ViewCompat.setNestedScrollingEnabled(binding.devicesListView, true)
-
-        handleDevicesListClick()
-
         connectHandler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message?) {
                 Looper.prepare()
@@ -69,10 +64,19 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
                 currentConnectedDevice = device
 
                 Snackbar.make(binding.root, "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
+
+                activity.runOnUiThread {
+                    connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.VISIBLE
+                }
             }
         }
 
         myBluetooth = MyBluetooth(activity, connectHandler)
+
+        /**
+         * Set devices recycler
+         */
+        setDevicesRecycler()
 
         setPairedDevicesAtList()
 
@@ -98,6 +102,88 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
         return binding.root
     }
 
+    private fun setDevicesRecycler() {
+        val layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        val itemDecorator = DividerItemDecoration(activity, layoutManager.orientation)
+        binding.devicesRecycler.addItemDecoration(itemDecorator)
+        binding.devicesRecycler.layoutManager = layoutManager
+
+        //Device item click
+        val clickListener = View.OnClickListener { view ->
+
+            val device = findDeviceByName("${view.findViewById<TextView>(R.id.device_name).text}")
+
+            if (device != null) {
+                Log.d(TAG, device.address.toString())
+                resetConnection()
+                myBluetooth.connectToDevice(device)
+                connectedDeviceView = view
+            }
+        }
+
+        devicesAdapter = DevicesAdapter(devices, activity, clickListener)
+        binding.devicesRecycler.adapter = devicesAdapter
+    }
+
+    private fun findDeviceByName(deviceName: String): BluetoothDevice? {
+        for (myBluetoothDevice in devices) {
+            if (myBluetoothDevice.device != null) {
+                val device = myBluetoothDevice.device
+                if (device.name == deviceName) return device
+            }
+        }
+        return null
+    }
+
+    private fun resetConnection() {
+        if (connectedDeviceView != null) {
+            connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.INVISIBLE
+            val deviceName = connectedDeviceView?.findViewById<TextView>(R.id.device_name)?.text.toString()
+            Snackbar.make(binding.root, "${getString(R.string.disconnected_from_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
+        }
+
+        connectedDeviceView = null
+        val socket = getMyBluetooth()?.getBluetoothSocket()
+        val inputStream = socket?.inputStream
+        val outputStream = socket?.outputStream
+
+        if (inputStream != null) {
+            try {
+                inputStream.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (outputStream != null) {
+            try {
+                outputStream.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (socket != null) {
+            try {
+                socket.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    override fun update(state: MainActivity.Companion.BluetoothStates) {
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
+            connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.INVISIBLE
+            showDisconnectFromDeviceMessage()
+        }
+    }
+
+    private fun showDisconnectFromDeviceMessage() {
+        val deviceName = connectedDeviceView?.findViewById<TextView>(R.id.device_name)?.text.toString()
+        Snackbar.make(binding.root, "${getString(R.string.disconnected_from_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
+    }
+
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt("discovery_layout_state", discovingDevicesLayoutVisibilityState)
         super.onSaveInstanceState(outState)
@@ -107,31 +193,29 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
 
     override fun getConnectedDevice(): BluetoothDevice? = currentConnectedDevice
 
-    override fun getDeviceSocket(): BluetoothSocket?  = myBluetooth.getBluetoothSocket()
+    override fun getDeviceSocket(): BluetoothSocket? = getMyBluetooth()?.getBluetoothSocket()
 
-    private fun updateDevicesList(element: String) {
-        devices.add(element)
-        arrayAdapter.notifyDataSetChanged()
-    }
+    private fun setPairedDevicesAtList() {
+        devices.add(MyBluetoothDevice(null, false,
+                MyBluetoothDevice.Companion.DeviceType.LABEL, getString(R.string.paired)))
 
-    fun setPairedDevicesAtList() {
         pairedDevices = myBluetooth.getPairedDevices()
+        var connectedFlag: Boolean
+        val socket =  getMyBluetooth()?.getBluetoothSocket()
 
         for (device in pairedDevices) {
-            devices.add("${device.name} : ${device.address}")
+
+            connectedFlag = if(socket != null ) socket.isConnected && socket.remoteDevice == device
+            else false
+
+            devices.add(MyBluetoothDevice(device, connectedFlag, MyBluetoothDevice.Companion.DeviceType.PAIRED, null))
         }
-        arrayAdapter.notifyDataSetChanged()
+        devicesAdapter.notifyDataSetChanged()
     }
 
-    private fun handleDevicesListClick() {
-        binding.devicesListView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            myBluetooth.connectToDevice(pairedDevices.elementAt(position))
-        }
-    }
 
     override fun checkDevicesAdapter() {
-        if (arrayAdapter.isEmpty)
-            setPairedDevicesAtList()
+        //TODO
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -150,6 +234,11 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 
 }

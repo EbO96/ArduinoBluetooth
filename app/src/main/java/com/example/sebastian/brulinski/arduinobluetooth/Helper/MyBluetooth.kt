@@ -1,4 +1,4 @@
-package com.example.sebastian.brulinski.arduinobluetooth
+package com.example.sebastian.brulinski.arduinobluetooth.Helper
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -13,6 +13,7 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import android.widget.Toast
+import com.example.sebastian.brulinski.arduinobluetooth.R
 import java.io.IOException
 import java.io.OutputStream
 import java.util.*
@@ -82,6 +83,7 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
 
     fun connectToDevice(btDevice: BluetoothDevice) {
         connectThread = ConnectThread(btDevice, connectHandler)
+//        connectThread!!.cancel()
         connectThread?.start()
     }
 
@@ -129,6 +131,7 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
                 Log.e(TAG, "Socket's create() method failed", e);
             }
             mBluetoothSocket = tmp
+
         }
 
         override fun run() {
@@ -157,7 +160,7 @@ class MyBluetooth(private val activity: Activity, handler: Handler) {
             try {
                 mBluetoothSocket?.close()
             } catch (e: IOException) {
-                Log.e(TAG, "Could not close the client socket", e);
+                e.printStackTrace()
             }
         }
 

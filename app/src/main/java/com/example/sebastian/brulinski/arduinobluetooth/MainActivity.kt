@@ -2,6 +2,7 @@ package com.example.sebastian.brulinski.arduinobluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,9 +19,11 @@ import android.util.Log
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
+import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
+import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalInterface {
 
@@ -31,6 +34,23 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
     private var permissionCheck: Int? = null
     private val fragmentManager = supportFragmentManager
     private lateinit var bluetoothStateReceiver: BroadcastReceiver
+    private lateinit var disconnectReceiver: BroadcastReceiver
+
+    companion object {
+        val mBluetoothStateDirector = BluetoothStateDirector()
+
+        //Bluetooth state flags
+        enum class BluetoothStates {
+            STATE_BT_OFF,
+            STATE_BT_ON,
+            STATE_DEVICE_CONNECTED,
+            STATE_DEVICE_DISCONNECTED
+        }
+    }
+
+    //Fragments
+    private val connectToDevice = ConnectToDevice()
+    private val terminal = Terminal()
 
     private var currentFragment: Fragment? = null
 
@@ -39,6 +59,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        connectToDeviceFragmentCallback = connectToDevice
 
         permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -65,6 +87,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
                             turnOnBluetooth()
+                            mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_BT_OFF)
                         }
                         BluetoothAdapter.STATE_TURNING_OFF -> {
                             //Toast.makeText(this@MainActivity, "state turning off", Toast.LENGTH_SHORT).show()
@@ -82,6 +105,14 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
                 }
             }
         }
+
+        disconnectReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_DISCONNECTED)
+            }
+        }
+
+        registerReceiver(disconnectReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
 
         registerReceiver(bluetoothStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 
@@ -134,19 +165,21 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
 
     private fun setConnectToDeviceFragment() {
         val transaction = fragmentManager.beginTransaction()
-        currentFragment = ConnectToDevice()
-        connectToDeviceFragmentCallback = currentFragment as ConnectToDeviceInterface
+        currentFragment = connectToDevice
+        mBluetoothStateDirector.registerObserver(connectToDevice)
         transaction.add(R.id.main_container, currentFragment)
         transaction.commit()
     }
 
     override fun setTerminalFragment() {
         val transacion = fragmentManager.beginTransaction()
-        currentFragment = Terminal()
+        val f = Terminal()
+        currentFragment = f
+        mBluetoothStateDirector.registerObserver(f)
         val b = Bundle()
         b.putParcelable("device", connectToDeviceFragmentCallback.getConnectedDevice())
         currentFragment?.arguments = b
-        transacion.add(R.id.main_container, currentFragment)
+        transacion.add(R.id.main_container, f)
         transacion.addToBackStack(TERMINAL_TAG)
         transacion.commit()
     }
