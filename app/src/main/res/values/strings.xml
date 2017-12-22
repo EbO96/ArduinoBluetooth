@@ -17,4 +17,11 @@
     <string name="close">Close</string>
     <string name="found">Found</string>
     <string name="disconnected_from_message">Disconnected from</string>
+    <string name="control_from_web">Control from Web</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login_register">Login/Register</string>
+    <string name="logout_from_web_control">Logout from web control</string>
+    <string name="account_created_successfully">Successfully created account for</string>
+    <string name="logged_successfully">logged successfully</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.sebastian.brulinski.arduinobluetooth
+package com.example.sebastian.brulinski.arduinobluetooth.Activities
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -24,6 +24,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDevi
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
+import com.example.sebastian.brulinski.arduinobluetooth.R
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalInterface {
 

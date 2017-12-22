@@ -1,12 +1,10 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Helper
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
@@ -17,9 +15,9 @@ import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import java.io.IOException
 import java.io.OutputStream
-import java.util.*
 
-class MyBluetooth(private val activity: Activity, handler: Handler, discoveryDevicesReceiver: BroadcastReceiver) {
+class MyBluetooth(private val context: Context?, handler: Handler?, discoveryDevicesReceiver: BroadcastReceiver?) {
+
 
     var mBluetoothAdapter: BluetoothAdapter? = null
     private lateinit var pairedDevices: Set<BluetoothDevice>
@@ -40,16 +38,15 @@ class MyBluetooth(private val activity: Activity, handler: Handler, discoveryDev
          */
         if (mBluetoothAdapter == null) {
             //Device doesn't support bluetooth
-            Toast.makeText(activity.applicationContext,
-                    activity.getString(R.string.bt_not_supported_message),
+            Toast.makeText(context?.applicationContext,
+                    context?.getString(R.string.bt_not_supported_message),
                     Toast.LENGTH_SHORT).show()
-
-            activity.finish()//finish activity
+            //TODO finish app
         }
 
 //        if (!isBtEnabled()) {
 //            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            activity.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
+//            context.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
 //        } else {
 //            getPairedDevices()
 //        }
@@ -74,7 +71,7 @@ class MyBluetooth(private val activity: Activity, handler: Handler, discoveryDev
     }
 
     fun connectToDevice(btDevice: BluetoothDevice) {
-        connectThread = ConnectThread(btDevice, connectHandler)
+        connectThread = ConnectThread(btDevice, connectHandler!!)
 //        connectThread!!.cancel()
         connectThread?.start()
     }
@@ -83,12 +80,12 @@ class MyBluetooth(private val activity: Activity, handler: Handler, discoveryDev
 
     fun discoverDevices() {
         mBluetoothAdapter?.startDiscovery()
-        activity.registerReceiver(devicesReceiver, receiverIntentFilters)
+        context?.registerReceiver(devicesReceiver, receiverIntentFilters)
     }
 
     fun cancelDiscovery() {
         mBluetoothAdapter?.cancelDiscovery()
-        activity.unregisterReceiver(devicesReceiver)
+        context?.unregisterReceiver(devicesReceiver)
     }
 
     fun write(toWrite: ByteArray, socketOutputStream: OutputStream) {

@@ -2,7 +2,7 @@ package com.example.sebastian.brulinski.arduinobluetooth.Observer
 
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateSubjectsInterface
-import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 
 class BluetoothStateDirector : BluetoothStateSubjectsInterface {
 

@@ -6,4 +6,9 @@
         android:title="@string/start_discovering_devices"
         android:icon="@drawable/ic_bluetooth_searching_white_24dp"
         app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/logout"
+        app:showAsAction="never"
+        android:title="@string/logout_from_web_control"/>
 </menu>

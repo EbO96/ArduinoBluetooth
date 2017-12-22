@@ -9,13 +9,15 @@ import android.support.v4.app.Fragment
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Helper.getCurrentTime
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
-import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerminalBinding
 import showAlert
 import java.io.OutputStream
+import java.util.*
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
 
@@ -26,6 +28,8 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     private var mDevice: BluetoothDevice? = null
     private var connectedDeviceSocket: BluetoothSocket? = null
     private lateinit var socketOutputStream: OutputStream
+
+    val timer = Timer()
 
     //Flags
     private var appendNewLine = true
@@ -98,10 +102,10 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                     getString(R.string.connect), getString(R.string.close),
                     {
 
-            },
+                    },
                     {
-                activity.supportFragmentManager.popBackStack()
-            })
+                        activity.supportFragmentManager.popBackStack()
+                    })
     }
 
     private fun sendToDevice(text: String) {
@@ -126,6 +130,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        timer.cancel()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 }

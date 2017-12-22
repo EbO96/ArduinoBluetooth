@@ -12,6 +12,7 @@ import android.os.Looper
 import android.os.Message
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -19,15 +20,17 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
-import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
+import com.google.firebase.auth.FirebaseAuth
+import showLoginDialog
 import java.util.*
 
 class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObserversInterface {
@@ -50,6 +53,9 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     private lateinit var connectHandler: Handler
 
     private lateinit var setProperFragmentCallback: SetProperFragmentInterface
+
+    //Menu item
+    private var logOutMenuItem: MenuItem? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -99,7 +105,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         }
 
         //Initialize class which is used to arrange bluetooth connection
-        myBluetooth = MyBluetooth(activity, connectHandler, devicesReceiver)
+        myBluetooth = MyBluetooth(context, connectHandler, devicesReceiver)
         /**
          * Set devices recycler
          */
@@ -112,11 +118,21 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             setProperFragmentCallback.setTerminalFragment()
         }
 
-
-        binding.customAction1.text = "${getString(R.string.custom_action)} 1"
         binding.customAction2.text = "${getString(R.string.custom_action)} 2"
         binding.customAction3.text = "${getString(R.string.custom_action)} 3"
 
+        binding.controlFromWebSwitch.setOnCheckedChangeListener { compoundButton, checked ->
+            if (checked) {
+                if (checkAlreadyLoggedIn()) {
+
+                } else {
+                    showLoginDialog(activity, { email, password, dialog ->
+
+                        loginOrCreateAccount(email, password, dialog)
+                    })
+                }
+            }
+        }
 
         if (savedInstanceState != null)
             discovingDevicesLayoutVisibilityState = savedInstanceState.getInt("discovery_layout_state")
@@ -128,7 +144,33 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             myBluetooth?.cancelDiscovery()
         }
 
+
         return binding.root
+    }
+
+    private fun loginOrCreateAccount(email: String, password: String, dialog: AlertDialog) {
+        val mAuth = FirebaseAuth.getInstance()
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(activity, "${getString(R.string.account_created_successfully)}: $email", Toast.LENGTH_SHORT).show()
+                checkAlreadyLoggedIn()
+            } else {
+                if (task.exception?.message == "The email address is already in use by another account.")
+                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { taskLogin ->
+                        if (taskLogin.isSuccessful) {
+                            Toast.makeText(activity, getString(R.string.logged_successfully), Toast.LENGTH_SHORT).show()
+                            checkAlreadyLoggedIn()
+                        }
+                    }
+            }
+            dialog.dismiss()
+        }
+    }
+
+    private fun checkAlreadyLoggedIn(): Boolean {
+        val flag = FirebaseAuth.getInstance().currentUser != null
+        logOutMenuItem?.isVisible = flag
+        return flag
     }
 
     private fun ArrayList<MyBluetoothDevice>.checkIfAlreadyFoundDeviceExist(device: BluetoothDevice) {
@@ -271,6 +313,8 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater!!.inflate(R.menu.connect_to_device_menu, menu)
+        logOutMenuItem = menu?.findItem(R.id.logout)
+        checkAlreadyLoggedIn()
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -284,6 +328,11 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
                     myBluetooth?.discoverDevices()
                     deleteFoundDevices()
                 }
+            }
+            R.id.logout -> {
+                FirebaseAuth.getInstance().signOut()
+                binding.controlFromWebSwitch.isChecked = false
+                checkAlreadyLoggedIn()
             }
         }
         return super.onOptionsItemSelected(item)

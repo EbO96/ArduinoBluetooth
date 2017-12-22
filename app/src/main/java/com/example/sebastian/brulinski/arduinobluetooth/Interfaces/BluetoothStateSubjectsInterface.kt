@@ -1,6 +1,6 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Interfaces
 
-import com.example.sebastian.brulinski.arduinobluetooth.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 
 interface BluetoothStateSubjectsInterface {
     fun registerObserver(observer: BluetoothStateObserversInterface)
