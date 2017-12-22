@@ -10,7 +10,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
-import com.example.sebastian.brulinski.arduinobluetooth.Helper.getCurrentTime
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
@@ -69,7 +68,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
             mDevice = savedInstanceState.getParcelable("device")
 
         //Edit text ime options
-        binding.terminalEditText.setOnEditorActionListener { textView, actionId, keyEvent ->
+        binding.terminalEditText.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_SEND -> {
                     sendToDevice("${binding.terminalEditText.text}")

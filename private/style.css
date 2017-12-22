@@ -1,0 +1,33 @@
+body{
+    background-color: #22B9BF;
+}
+
+#console{
+    margin: auto;
+    display: block;
+    background-color: #000000;
+    width: 1000px;
+    height: 400px;
+}
+
+#message{
+    position: absolute;
+    margin: auto;
+    margin-top: 364px;
+    background-color: #000000;
+    color: #00FF00;
+    width: 950px;
+    height: 30px;
+}
+#send{
+    position: absolute;
+    margin: auto;
+    margin-left: 950px;
+    margin-top: 364px;
+    float: right;
+    padding: 4px;
+    background-color: #000000;
+    color: #00FF00;
+    width: 50px;
+    height: 37px;
+}

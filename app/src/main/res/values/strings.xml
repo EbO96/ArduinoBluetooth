@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ArduinoBluetooth</string>
+    <string name="app_name">Arduino Bluetooth</string>
     <string name="bt_not_supported_message">Device doesn\'t support bluetooth</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -24,4 +24,5 @@
     <string name="logout_from_web_control">Logout from web control</string>
     <string name="account_created_successfully">Successfully created account for</string>
     <string name="logged_successfully">logged successfully</string>
+    <string name="firebase_link">https://arduinobluetooth-27c22.firebaseapp.com/</string>
 </resources>

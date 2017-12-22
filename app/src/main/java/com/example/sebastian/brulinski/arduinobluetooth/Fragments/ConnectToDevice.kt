@@ -30,7 +30,12 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import showLoginDialog
+import java.io.OutputStream
 import java.util.*
 
 class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObserversInterface {
@@ -46,6 +51,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     private var connectedDeviceView: View? = null
 
     private var currentConnectedDevice: BluetoothDevice? = null
+    private var currentConnectedDeviceOutputStream: OutputStream? = null
 
     private var discovingDevicesLayoutVisibilityState = View.GONE
 
@@ -56,6 +62,10 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
     //Menu item
     private var logOutMenuItem: MenuItem? = null
+
+    //Database
+    private val webCommandsReference = FirebaseDatabase.getInstance().reference.child("message")
+    private lateinit var webCommandsEventListener: ValueEventListener
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -73,6 +83,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
                 val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
                 currentConnectedDevice = device
+                currentConnectedDeviceOutputStream = myBluetooth?.getBluetoothSocket()?.outputStream
 
                 Snackbar.make(binding.root, "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
 
@@ -105,7 +116,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         }
 
         //Initialize class which is used to arrange bluetooth connection
-        myBluetooth = MyBluetooth(context, connectHandler, devicesReceiver)
+        myBluetooth = MyBluetooth(activity, connectHandler, devicesReceiver)
         /**
          * Set devices recycler
          */
@@ -131,6 +142,28 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
                         loginOrCreateAccount(email, password, dialog)
                     })
                 }
+            }
+            if (checkAlreadyLoggedIn() && currentConnectedDevice != null) {
+                if (checked) {
+                    binding.linkTextView.visibility = View.VISIBLE
+                    webCommandsEventListener = webCommandsReference.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot?) {
+                            getMyBluetooth()?.write("${snapshot?.value}\n".toByteArray(), currentConnectedDeviceOutputStream!!)
+                        }
+
+                        override fun onCancelled(p0: DatabaseError?) {
+
+                        }
+                    })
+                } else {
+                    binding.linkTextView.visibility = View.INVISIBLE
+                    webCommandsReference.removeEventListener(webCommandsEventListener)
+                }
+            }else {
+                Toast.makeText(activity, "First connect to device", Toast.LENGTH_SHORT).show()
+                Handler().postDelayed({
+                    disconnectFromWeb()
+                }, 500)
             }
         }
 
@@ -233,6 +266,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         }
 
         connectedDeviceView = null
+        currentConnectedDevice = null
         val socket = getMyBluetooth()?.getBluetoothSocket()
         val inputStream = socket?.inputStream
         val outputStream = socket?.outputStream
@@ -266,7 +300,19 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
             connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.INVISIBLE
             showDisconnectFromDeviceMessage()
+            disconnectFromWeb()
         }
+    }
+
+    private fun disconnectFromWeb(){
+
+        try {
+            webCommandsReference.removeEventListener(webCommandsEventListener)
+        } catch (e: RuntimeException) {
+            e.printStackTrace()
+        }
+        binding.controlFromWebSwitch.isChecked = false
+        binding.linkTextView.visibility = View.INVISIBLE
     }
 
     private fun showDisconnectFromDeviceMessage() {

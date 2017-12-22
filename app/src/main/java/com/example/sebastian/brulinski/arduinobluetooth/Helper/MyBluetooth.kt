@@ -1,5 +1,6 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Helper
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
@@ -16,7 +17,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 import java.io.IOException
 import java.io.OutputStream
 
-class MyBluetooth(private val context: Context?, handler: Handler?, discoveryDevicesReceiver: BroadcastReceiver?) {
+class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryDevicesReceiver: BroadcastReceiver?) {
 
 
     var mBluetoothAdapter: BluetoothAdapter? = null
@@ -38,15 +39,15 @@ class MyBluetooth(private val context: Context?, handler: Handler?, discoveryDev
          */
         if (mBluetoothAdapter == null) {
             //Device doesn't support bluetooth
-            Toast.makeText(context?.applicationContext,
-                    context?.getString(R.string.bt_not_supported_message),
+            Toast.makeText(activity?.applicationContext,
+                    activity?.getString(R.string.bt_not_supported_message),
                     Toast.LENGTH_SHORT).show()
-            //TODO finish app
+            activity?.finish()
         }
 
 //        if (!isBtEnabled()) {
 //            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            context.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
+//            activity.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
 //        } else {
 //            getPairedDevices()
 //        }
@@ -80,12 +81,12 @@ class MyBluetooth(private val context: Context?, handler: Handler?, discoveryDev
 
     fun discoverDevices() {
         mBluetoothAdapter?.startDiscovery()
-        context?.registerReceiver(devicesReceiver, receiverIntentFilters)
+        activity?.registerReceiver(devicesReceiver, receiverIntentFilters)
     }
 
     fun cancelDiscovery() {
         mBluetoothAdapter?.cancelDiscovery()
-        context?.unregisterReceiver(devicesReceiver)
+        activity?.unregisterReceiver(devicesReceiver)
     }
 
     fun write(toWrite: ByteArray, socketOutputStream: OutputStream) {
