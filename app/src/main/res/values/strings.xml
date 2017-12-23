@@ -25,4 +25,10 @@
     <string name="account_created_successfully">Successfully created account for</string>
     <string name="logged_successfully">logged successfully</string>
     <string name="firebase_link">https://arduinobluetooth-27c22.firebaseapp.com/</string>
+    <string name="vehicle_control">Vehicle Control</string>
+    <string name="left">LEFT</string>
+    <string name="right">RIGHT</string>
+    <string name="down">DOWN</string>
+    <string name="up">UP</string>
+    <string name="accelerometer">Accelerometer</string>
 </resources>

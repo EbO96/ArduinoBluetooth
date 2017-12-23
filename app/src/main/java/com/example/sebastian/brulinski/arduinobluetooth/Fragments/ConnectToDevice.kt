@@ -129,7 +129,6 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             setProperFragmentCallback.setTerminalFragment()
         }
 
-        binding.customAction2.text = "${getString(R.string.custom_action)} 2"
         binding.customAction3.text = "${getString(R.string.custom_action)} 3"
 
         binding.controlFromWebSwitch.setOnCheckedChangeListener { compoundButton, checked ->
@@ -159,12 +158,16 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
                     binding.linkTextView.visibility = View.INVISIBLE
                     webCommandsReference.removeEventListener(webCommandsEventListener)
                 }
-            }else {
+            } else {
                 Toast.makeText(activity, "First connect to device", Toast.LENGTH_SHORT).show()
                 Handler().postDelayed({
                     disconnectFromWeb()
                 }, 500)
             }
+        }
+
+        binding.vehicleControlButton.setOnClickListener {
+            setProperFragmentCallback.setVehicleControlFragment()
         }
 
         if (savedInstanceState != null)
@@ -297,14 +300,14 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     }
 
     override fun update(state: MainActivity.Companion.BluetoothStates) {
-        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded) {
             connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.INVISIBLE
             showDisconnectFromDeviceMessage()
             disconnectFromWeb()
         }
     }
 
-    private fun disconnectFromWeb(){
+    private fun disconnectFromWeb() {
 
         try {
             webCommandsReference.removeEventListener(webCommandsEventListener)

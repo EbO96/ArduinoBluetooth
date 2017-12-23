@@ -19,6 +19,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
+import com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment
 import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ConnectToDeviceInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
 
     private val TAG = "MainActivity" //Log tag
     private val TERMINAL_TAG = "TERMINAL" //Log tag
+    private val VEHICLE_CONTROL_TAG = "VEHICLE_CONTROL" //Log tag
     private val LOCATION_PERMISSION_ID = 1001
     private val ENABLE_BT_REQUEST_CODE = 1
     private var permissionCheck: Int? = null
@@ -183,6 +185,18 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
         transacion.add(R.id.main_container, f)
         transacion.addToBackStack(TERMINAL_TAG)
         transacion.commit()
+    }
+
+    override fun setVehicleControlFragment() {
+        val transaction = fragmentManager.beginTransaction()
+        val f = VehicleControlFragment()
+        currentFragment = f
+        mBluetoothStateDirector.registerObserver(f)
+//        val b = Bundle()
+//        currentFragment?.arguments = b
+        transaction.add(R.id.main_container, f)
+        transaction.addToBackStack(VEHICLE_CONTROL_TAG)
+        transaction.commit()
     }
 
     private fun turnOnBluetooth() {

@@ -121,15 +121,13 @@
                         android:visibility="invisible" />
 
                     <Button
-                        android:id="@+id/custom_action_2"
+                        android:id="@+id/vehicle_control_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginStart="4dp"
                         android:background="@color/colorPrimary"
                         android:padding="24dp"
-                        android:text="@string/custom_action"
+                        android:text="@string/vehicle_control"
                         android:textColor="#ffffff" />
 
                     <Button
