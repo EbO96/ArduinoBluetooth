@@ -6,10 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.hardware.camera2.params.BlackLevelPattern
+import android.os.*
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -53,7 +51,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     private var currentConnectedDevice: BluetoothDevice? = null
     private var currentConnectedDeviceOutputStream: OutputStream? = null
 
-    private var discovingDevicesLayoutVisibilityState = View.GONE
+    private var discoveringDevicesLayoutVisibilityState = View.GONE
 
     private val TAG = "ConnectToDevice"
     private lateinit var connectHandler: Handler
@@ -170,13 +168,18 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             setProperFragmentCallback.setVehicleControlFragment()
         }
 
-        if (savedInstanceState != null)
-            discovingDevicesLayoutVisibilityState = savedInstanceState.getInt("discovery_layout_state")
-        binding.discoverDevicesLayout.visibility = discovingDevicesLayoutVisibilityState
+        if (savedInstanceState != null){
+            discoveringDevicesLayoutVisibilityState = savedInstanceState.getInt("discovery_layout_state")
+            binding.discoverDevicesLayout.visibility = discoveringDevicesLayoutVisibilityState
+
+            if(discoveringDevicesLayoutVisibilityState == View.VISIBLE)
+                turnOnDiscoverDevices(binding.discoverDevicesLayout)
+        }
+
 
         binding.cancelDiscoveringButton.setOnClickListener {
-            discovingDevicesLayoutVisibilityState = View.GONE
-            binding.discoverDevicesLayout.visibility = discovingDevicesLayoutVisibilityState
+            discoveringDevicesLayoutVisibilityState = View.GONE
+            binding.discoverDevicesLayout.visibility = discoveringDevicesLayoutVisibilityState
             myBluetooth?.cancelDiscovery()
         }
 
@@ -236,19 +239,28 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
         //Device item click
         val clickListener = View.OnClickListener { view ->
-
-            val device = findDeviceByName("${view.findViewById<TextView>(R.id.device_name).text}")
-
-            if (device != null) {
-                Log.d(TAG, device.address.toString())
-                resetConnection()
-                myBluetooth?.connectToDevice(device)
-                connectedDeviceView = view
-            }
+           getDeviceAndConnect(view, null)
         }
 
         devicesAdapter = DevicesAdapter(devices, activity, clickListener)
         binding.devicesRecycler.adapter = devicesAdapter
+    }
+
+    private fun getDeviceAndConnect(view: View?, btDevice: BluetoothDevice?){
+        val device: BluetoothDevice?
+
+        if(view != null){
+            val foundDevice = findDeviceByName("${view.findViewById<TextView>(R.id.device_name).text}")
+            device = foundDevice
+
+        }else device = btDevice
+
+        if (device != null) {
+            Log.d(TAG, device.address.toString())
+            resetConnection()
+            myBluetooth?.connectToDevice(device)
+            connectedDeviceView = view
+        }
     }
 
     private fun findDeviceByName(deviceName: String): BluetoothDevice? {
@@ -324,7 +336,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putInt("discovery_layout_state", discovingDevicesLayoutVisibilityState)
+        outState?.putInt("discovery_layout_state", discoveringDevicesLayoutVisibilityState)
         super.onSaveInstanceState(outState)
     }
 
@@ -335,6 +347,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     override fun getDeviceSocket(): BluetoothSocket? = getMyBluetooth()?.getBluetoothSocket()
 
     private fun setPairedDevicesAtList() {
+        devices.clear()
         devices.add(MyBluetoothDevice(null, false,
                 MyBluetoothDevice.Companion.DeviceType.LABEL, getString(R.string.paired)))
 
@@ -357,7 +370,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
 
     override fun checkDevicesAdapter() {
-        //TODO
+        setPairedDevicesAtList()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -372,10 +385,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             R.id.discover_devices -> {
                 val view = binding.discoverDevicesLayout
                 if (view.visibility != View.VISIBLE) {
-                    discovingDevicesLayoutVisibilityState = View.VISIBLE
-                    view.visibility = discovingDevicesLayoutVisibilityState
-                    myBluetooth?.discoverDevices()
-                    deleteFoundDevices()
+                    turnOnDiscoverDevices(view)
                 }
             }
             R.id.logout -> {
@@ -385,6 +395,14 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun turnOnDiscoverDevices(view: View){
+
+        discoveringDevicesLayoutVisibilityState = View.VISIBLE
+        view.visibility = discoveringDevicesLayoutVisibilityState
+        myBluetooth?.discoverDevices()
+        deleteFoundDevices()
     }
 
     private fun deleteFoundDevices() {
@@ -411,8 +429,6 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     override fun onDestroyView() {
         super.onDestroyView()
         resetConnection()
-        Toast.makeText(activity, "${getString(R.string.disconnected_from_message)}: ${currentConnectedDevice?.name}", Toast.LENGTH_SHORT).show()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
-
 }

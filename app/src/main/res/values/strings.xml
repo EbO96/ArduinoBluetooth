@@ -31,4 +31,5 @@
     <string name="down">DOWN</string>
     <string name="up">UP</string>
     <string name="accelerometer">Accelerometer</string>
+    <string name="cant_send_message">Cant send message</string>
 </resources>

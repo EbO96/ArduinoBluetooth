@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
+import com.example.sebastian.brulinski.arduinobluetooth.AsyncTasks.MyBluetoothJobExecutor
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment
@@ -103,6 +104,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
 
                         BluetoothAdapter.STATE_ON -> {
                             connectToDeviceFragmentCallback.checkDevicesAdapter()
+                            connectToDeviceFragmentCallback.checkDevicesAdapter()
                         }
                     }
                 }
@@ -119,8 +121,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
 
         registerReceiver(bluetoothStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 
-        if (savedInstanceState == null)
+        if (savedInstanceState == null) {
             setConnectToDeviceFragment()
+        }
     }
 
     override fun onStart() {
@@ -150,6 +153,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(bluetoothStateReceiver)
+        unregisterReceiver(disconnectReceiver)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

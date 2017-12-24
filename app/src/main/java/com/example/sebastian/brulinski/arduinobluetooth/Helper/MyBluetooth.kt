@@ -19,7 +19,6 @@ import java.io.OutputStream
 
 class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryDevicesReceiver: BroadcastReceiver?) {
 
-
     var mBluetoothAdapter: BluetoothAdapter? = null
     private lateinit var pairedDevices: Set<BluetoothDevice>
     private var connectThread: ConnectThread? = null

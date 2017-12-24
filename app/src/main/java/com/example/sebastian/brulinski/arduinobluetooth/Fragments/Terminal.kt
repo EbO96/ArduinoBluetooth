@@ -53,15 +53,6 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
         connectedDeviceSocket = terminalCallback.getConnectedDeviceSocket()
         if (connectedDeviceSocket != null && connectedDeviceSocket!!.isConnected) {
             socketOutputStream = connectedDeviceSocket!!.outputStream
-
-        } else {
-            Toast.makeText(activity, "First connect to device", Toast.LENGTH_SHORT).show()
-            binding.terminalEditText.isEnabled = false
-            Handler().postDelayed({
-                if (this.isAdded)
-                    activity.supportFragmentManager.popBackStack()
-
-            }, 2800)
         }
 
         if (savedInstanceState != null)
@@ -95,7 +86,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     }
 
     override fun update(state: MainActivity.Companion.BluetoothStates) {
-        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED)
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded)
             showAlert(activity, "Connection with ${mDevice!!.name} lost",
                     getString(R.string.connection_lost_message), false,
                     getString(R.string.connect), getString(R.string.close),
@@ -119,7 +110,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                     toSend,
                     socketOutputStream
             )
-        }
+        }else Toast.makeText(activity, getString(R.string.cant_send_message), Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
