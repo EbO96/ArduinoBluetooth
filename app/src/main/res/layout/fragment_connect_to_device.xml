@@ -2,8 +2,8 @@
 
     <android.support.v4.widget.NestedScrollView xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:background="#FAFAFA"
         android:layout_height="match_parent"
+        android:background="#FAFAFA"
         android:scrollbars="vertical">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,19 +14,19 @@
             tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice">
 
             <LinearLayout
-                android:elevation="6dp"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="8dp"
                 android:background="#FFFFFF"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content">
+                android:elevation="4dp"
+                android:orientation="vertical">
 
                 <RelativeLayout
-                    android:background="#FFFFFF"
                     android:id="@+id/discover_devices_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
                     android:visibility="gone">
 
 
@@ -58,10 +58,10 @@
                 </RelativeLayout>
 
                 <android.support.v7.widget.RecyclerView
-                    android:background="#FFFFFF"
                     android:id="@+id/devices_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF" />
 
             </LinearLayout>
 
@@ -76,6 +76,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:elevation="4dp"
+                android:layout_gravity="center"
                 android:orientation="vertical">
 
                 <Button
@@ -85,6 +88,8 @@
                     android:layout_marginBottom="16dp"
                     android:background="@color/colorPrimary"
                     android:padding="24dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
                     android:text="@string/terminal"
                     android:textColor="#ffffff" />
 
@@ -101,20 +106,22 @@
 
                 <TextView
                     android:id="@+id/link_text_view"
-                    android:textAlignment="center"
-                    android:text="@string/firebase_link"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginStart="4dp"
-                    android:layout_marginBottom="12dp"
-                    android:visibility="invisible"/>
+                    android:text="@string/firebase_link"
+                    android:textAlignment="center"
+                    android:visibility="invisible" />
 
                 <Button
                     android:id="@+id/vehicle_control_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
                     android:background="@color/colorPrimary"
                     android:padding="24dp"
                     android:text="@string/vehicle_control"
@@ -125,6 +132,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
                     android:background="@color/colorPrimary"
                     android:padding="24dp"
                     android:text="@string/custom_action"

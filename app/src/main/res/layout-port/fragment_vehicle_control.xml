@@ -3,48 +3,44 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:clickable="true"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary"
+        android:clickable="true"
+        android:focusable="true"
         tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment">
 
         <ImageButton
+            android:id="@+id/move_forward"
             android:layout_width="144dp"
             android:layout_height="144dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="25dp"
-            android:layout_marginRight="25dp"
-            android:layout_marginTop="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="4dp"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:rotation="90"
             android:src="@drawable/ic_keyboard_arrow_up_black_48dp"
             android:text="@string/up" />
 
         <ImageButton
+            android:id="@+id/move_back"
             android:layout_width="144dp"
             android:layout_height="144dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="16dp"
+            android:layout_below="@id/move_forward"
+            android:layout_margin="4dp"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:rotation="90"
             android:src="@drawable/ic_keyboard_arrow_down_black_48dp"
             android:text="@string/down" />
 
         <ImageButton
+            android:id="@+id/turn_left"
             android:layout_width="144dp"
             android:layout_height="144dp"
-            android:layout_above="@id/turn_right"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="16dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="16dp"
+            android:layout_toStartOf="@id/turn_right"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:rotation="90"
             android:src="@drawable/ic_keyboard_arrow_left_black_48dp"
             android:text="@string/left" />
 
@@ -52,12 +48,11 @@
             android:id="@+id/turn_right"
             android:layout_width="144dp"
             android:layout_height="144dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="16dp"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:rotation="90"
             android:src="@drawable/ic_keyboard_arrow_right_black_48dp"
             android:text="@string/right" />
 

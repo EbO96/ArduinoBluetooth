@@ -62,17 +62,11 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
         mBluetoothAdapter?.cancelDiscovery()
         pairedDevices = mBluetoothAdapter!!.bondedDevices
 
-//        if(pairedDevices.isEmpty()){
-//            for(device in pairedDevices){
-//
-//            }
-//        }
         return pairedDevices
     }
 
     fun connectToDevice(btDevice: BluetoothDevice) {
         connectThread = ConnectThread(btDevice, connectHandler!!)
-//        connectThread!!.cancel()
         connectThread?.start()
     }
 
@@ -85,7 +79,11 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
 
     fun cancelDiscovery() {
         mBluetoothAdapter?.cancelDiscovery()
-        activity?.unregisterReceiver(devicesReceiver)
+        try{
+            activity?.unregisterReceiver(devicesReceiver)
+        }catch (e: IllegalArgumentException){
+
+        }
     }
 
     fun write(toWrite: ByteArray, socketOutputStream: OutputStream) {

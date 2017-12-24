@@ -32,4 +32,6 @@
     <string name="up">UP</string>
     <string name="accelerometer">Accelerometer</string>
     <string name="cant_send_message">Cant send message</string>
+    <string name="connection_lost">Connection lost</string>
+    <string name="first_connect_to_device_msg">First connect to device</string>
 </resources>

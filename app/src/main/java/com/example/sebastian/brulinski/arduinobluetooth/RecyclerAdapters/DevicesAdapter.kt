@@ -26,6 +26,7 @@ class DevicesAdapter(private var devices: ArrayList<MyBluetoothDevice>, private 
         notifyDataSetChanged()
     }
 
+
     override fun getItemViewType(position: Int): Int {
         return when (devices[position].type) {
             MyBluetoothDevice.Companion.DeviceType.PAIRED -> TYPE_PAIRED

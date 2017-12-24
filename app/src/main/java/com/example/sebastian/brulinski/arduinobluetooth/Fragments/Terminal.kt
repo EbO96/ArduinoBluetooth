@@ -1,17 +1,18 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.Fragment
-import android.view.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
-import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerminalBinding
 import showAlert
@@ -20,27 +21,18 @@ import java.util.*
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
 
+    //Tags
+    private val TAG = "Terminal"
+
+    //Callbacks
+    private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
+
     private lateinit var binding: FragmentTerminalBinding
     private val sendText = StringBuilder()
-
-    private lateinit var terminalCallback: TerminalInterface
-    private var mDevice: BluetoothDevice? = null
-    private var connectedDeviceSocket: BluetoothSocket? = null
-    private lateinit var socketOutputStream: OutputStream
-
-    val timer = Timer()
-
     //Flags
     private var appendNewLine = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (savedInstanceState == null)
-            mDevice = arguments.getParcelable("device")
-    }
-
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putParcelable("device", mDevice)
         super.onSaveInstanceState(outState)
     }
 
@@ -48,28 +40,19 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_terminal, container, false)
         setHasOptionsMenu(true)
-        terminalCallback = activity as TerminalInterface
-
-        connectedDeviceSocket = terminalCallback.getConnectedDeviceSocket()
-        if (connectedDeviceSocket != null && connectedDeviceSocket!!.isConnected) {
-            socketOutputStream = connectedDeviceSocket!!.outputStream
-        }
-
-        if (savedInstanceState != null)
-            mDevice = savedInstanceState.getParcelable("device")
 
         //Edit text ime options
         binding.terminalEditText.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_SEND -> {
-                    sendToDevice("${binding.terminalEditText.text}")
+                    sendMessage()
                 }
             }
             true
         }
 
         binding.sendMessageToDevice.setOnClickListener {
-            sendToDevice("${binding.terminalEditText.text}")
+            sendMessage()
         }
 
         binding.clearMessage.setOnClickListener {
@@ -85,9 +68,20 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
         return binding.root
     }
 
+    private fun sendMessage() {
+        var text = "${binding.terminalEditText.text}"
+
+        if (appendNewLine) text += "\n"
+
+        bluetoothActionsCallback.writeToDevice(text.toByteArray())
+
+        sendText.append(text)
+        binding.terminalTextTextView.text = "$sendText"
+    }
+
     override fun update(state: MainActivity.Companion.BluetoothStates) {
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded)
-            showAlert(activity, "Connection with ${mDevice!!.name} lost",
+            showAlert(activity, getString(R.string.connection_lost),
                     getString(R.string.connection_lost_message), false,
                     getString(R.string.connect), getString(R.string.close),
                     {
@@ -98,29 +92,20 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                     })
     }
 
-    private fun sendToDevice(text: String) {
-        if (!text.isEmpty() && connectedDeviceSocket != null && connectedDeviceSocket!!.isConnected) {
-            sendText.appendln(text)
-            binding.terminalTextTextView.text = "$sendText\n"
 
-            val toSend = if (appendNewLine) "$text\n".toByteArray()
-            else text.toByteArray()
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
 
-            terminalCallback.getMyBluetooth()!!.write(
-                    toSend,
-                    socketOutputStream
-            )
+        try {
+            bluetoothActionsCallback = context as BluetoothActionsInterface
+
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement BluetoothActionsInterface", e)
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater!!.inflate(R.menu.terminal_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        timer.cancel()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 }
