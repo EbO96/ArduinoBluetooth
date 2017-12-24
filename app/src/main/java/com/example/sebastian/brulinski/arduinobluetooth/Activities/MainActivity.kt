@@ -27,6 +27,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.TerminalInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import com.example.sebastian.brulinski.arduinobluetooth.Services.BluetoothConnectionService
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalInterface {
 
@@ -208,9 +209,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, TerminalIn
         startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
     }
 
-    override fun getMyBluetooth(): MyBluetooth? {
-        return connectToDeviceFragmentCallback.getMyBluetooth()
-    }
+    override fun getMyBluetooth(): MyBluetooth? = connectToDeviceFragmentCallback.getMyBluetooth()
 
+
+    //override fun getMyBluetooth(): BluetoothConnectionService? = connectToDeviceFragmentCallback.getMyBluetooth()
     override fun getConnectedDeviceSocket(): BluetoothSocket? = connectToDeviceFragmentCallback.getDeviceSocket()
 }

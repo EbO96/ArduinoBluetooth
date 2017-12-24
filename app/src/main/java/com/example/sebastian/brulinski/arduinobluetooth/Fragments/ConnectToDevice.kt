@@ -1,5 +1,6 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
+import android.app.IntentService
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
@@ -26,6 +27,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
+import com.example.sebastian.brulinski.arduinobluetooth.Services.BluetoothConnectionService
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -45,6 +47,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     private var foundDevices = ArrayList<BluetoothDevice>()
     private var devices = ArrayList<MyBluetoothDevice>()
     private var myBluetooth: MyBluetooth? = null
+    //private var myBluetooth: BluetoothConnectionService? = null
     private lateinit var devicesAdapter: DevicesAdapter
     private var connectedDeviceView: View? = null
 
@@ -115,6 +118,10 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
 
         //Initialize class which is used to arrange bluetooth connection
         myBluetooth = MyBluetooth(activity, connectHandler, devicesReceiver)
+//        myBluetooth = BluetoothConnectionService(connectHandler, devicesReceiver)
+//        activity.startService(Intent(activity, BluetoothConnectionService::class.java))
+//        val intentService = Intent(activity, BluetoothConnectionService::class.java)
+
         /**
          * Set devices recycler
          */
@@ -341,6 +348,7 @@ class ConnectToDevice : Fragment(), ConnectToDeviceInterface, BluetoothStateObse
     }
 
     override fun getMyBluetooth(): MyBluetooth? = myBluetooth
+    //override fun getMyBluetooth(): BluetoothConnectionService = myBluetooth!!
 
     override fun getConnectedDevice(): BluetoothDevice? = currentConnectedDevice
 

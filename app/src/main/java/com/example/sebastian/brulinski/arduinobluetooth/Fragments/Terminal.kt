@@ -110,7 +110,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                     toSend,
                     socketOutputStream
             )
-        }else Toast.makeText(activity, getString(R.string.cant_send_message), Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
