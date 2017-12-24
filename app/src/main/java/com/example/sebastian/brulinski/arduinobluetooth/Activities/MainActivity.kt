@@ -190,6 +190,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                     BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         isConnected = false
                         mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_CONNECTED_TO_DEVICE)
+                        resetConnection()
                     }
                     BluetoothDevice.ACTION_ACL_CONNECTED -> {
                         isConnected = true
@@ -295,10 +296,11 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun setTerminalFragment() {
+        supportActionBar?.hide()
         val transaction = fragmentManager.beginTransaction()
-        currentFragment = vehicleControl
-        mBluetoothStateDirector.registerObserver(vehicleControl)
-        transaction.add(R.id.main_container, terminal)
+        currentFragment = terminal
+        mBluetoothStateDirector.registerObserver(terminal)
+        transaction.add(R.id.main_container, currentFragment)
         transaction.addToBackStack(TERMINAL_TAG)
         transaction.commit()
     }
@@ -306,7 +308,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun setVehicleControlFragment() {
 
         supportActionBar?.hide()
-
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         val transaction = fragmentManager.beginTransaction()
@@ -323,6 +324,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun writeToDevice(toWrite: ByteArray) {
+
+        if (!isConnected)
+            Toast.makeText(applicationContext, getString(R.string.message_no_sent), Toast.LENGTH_SHORT).show()
 
         try {
             myBluetooth.write(toWrite, myBluetooth.getBluetoothSocket()!!.outputStream)
@@ -360,7 +364,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun getMyBluetoothDevices(): ArrayList<MyBluetoothDevice> {
 
         for (device in getPairedDevices()) {
-                devices.checkIfAlreadyDeviceExist(device, MyBluetoothDevice.Companion.DeviceType.PAIRED)
+            devices.checkIfAlreadyDeviceExist(device, MyBluetoothDevice.Companion.DeviceType.PAIRED)
         }
 
         return devices

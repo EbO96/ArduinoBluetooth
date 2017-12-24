@@ -1,8 +1,8 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
-import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.databinding.DataBindingUtil
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -15,9 +15,6 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActi
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerminalBinding
-import showAlert
-import java.io.OutputStream
-import java.util.*
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
 
@@ -40,6 +37,9 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_terminal, container, false)
         setHasOptionsMenu(true)
+
+        if (!bluetoothActionsCallback.isConnectedToDevice())
+            changeTextColors("#FF0000")
 
         //Edit text ime options
         binding.terminalEditText.setOnEditorActionListener { _, actionId, _ ->
@@ -80,18 +80,22 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     }
 
     override fun update(state: MainActivity.Companion.BluetoothStates) {
-        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded)
-            showAlert(activity, getString(R.string.connection_lost),
-                    getString(R.string.connection_lost_message), false,
-                    getString(R.string.connect), getString(R.string.close),
-                    {
 
-                    },
-                    {
-                        activity.supportFragmentManager.popBackStack()
-                    })
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
+            changeTextColors("#FF0000")
+        }
+        if (state == MainActivity.Companion.BluetoothStates.STATE_CONNECTED_TO_DEVICE) {
+            changeTextColors("#00FF00")
+        }
     }
 
+    private fun changeTextColors(hexColor: String) {
+        binding.terminalTextTextView.setTextColor(Color.parseColor(hexColor))
+        binding.terminalEditText.setTextColor(Color.parseColor(hexColor))
+        binding.terminalEditText.setHintTextColor(Color.parseColor(hexColor))
+        binding.sendMessageToDevice.setColorFilter(Color.parseColor(hexColor))
+        binding.clearMessage.setColorFilter(Color.parseColor(hexColor))
+    }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -106,6 +110,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (activity as MainActivity).supportActionBar?.show()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 }
