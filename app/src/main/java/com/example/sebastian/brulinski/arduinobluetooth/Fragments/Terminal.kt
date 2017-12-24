@@ -84,7 +84,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
             changeTextColors("#FF0000")
         }
-        if (state == MainActivity.Companion.BluetoothStates.STATE_CONNECTED_TO_DEVICE) {
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED) {
             changeTextColors("#00FF00")
         }
     }

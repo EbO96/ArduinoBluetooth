@@ -221,7 +221,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             showDisconnectFromDeviceMessage()
             disconnectFromWeb()
             connectedDeviceView = null
-        } else if (state == MainActivity.Companion.BluetoothStates.STATE_CONNECTED_TO_DEVICE && this.isAdded) {
+        } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED && this.isAdded) {
             activity.runOnUiThread {
                 connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.VISIBLE
             }

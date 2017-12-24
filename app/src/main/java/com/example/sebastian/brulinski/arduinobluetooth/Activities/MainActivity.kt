@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
             STATE_BT_ON,
             STATE_DEVICE_CONNECTED,
             STATE_DEVICE_DISCONNECTED,
-            STATE_CONNECTED_TO_DEVICE,
             STATE_DEVICE_FOUND
         }
     }
@@ -189,15 +188,14 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                 when (action) {
                     BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                         isConnected = false
-                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_CONNECTED_TO_DEVICE)
+                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_DISCONNECTED)
                         resetConnection()
                     }
                     BluetoothDevice.ACTION_ACL_CONNECTED -> {
                         isConnected = true
-                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_DISCONNECTED)
+                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_CONNECTED)
                     }
                 }
-                mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_DISCONNECTED)
             }
         }
 
