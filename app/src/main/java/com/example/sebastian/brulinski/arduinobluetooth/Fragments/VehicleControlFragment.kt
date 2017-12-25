@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
@@ -37,6 +39,58 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
+
+    //Touch listeners
+    private val forwardTouchListener = object : View.OnTouchListener {
+        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
+
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+            }
+            return true
+        }
+    }
+
+    //Touch listeners
+    private val backTouchListener = object : View.OnTouchListener {
+        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
+
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
+            }
+            return true
+        }
+    }
+
+    //Touch listeners
+    private val leftTouchListener = object : View.OnTouchListener {
+        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
+
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+            }
+            return true
+        }
+    }
+
+    //Touch listeners
+    private val rightTouchListener = object : View.OnTouchListener {
+        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
+
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+            }
+            return true
+        }
+    }
 
     enum class Move {
         FORWARD,
@@ -88,28 +142,51 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     }
 
+    private fun addTouchListenersToButtons(forwardTouchListener: View.OnTouchListener?, backTouchListener: View.OnTouchListener?,
+                                           leftTouchListener: View.OnTouchListener?, rightTouchListener: View.OnTouchListener?) {
+
+        binding.moveForward.setOnTouchListener(forwardTouchListener)
+
+        binding.moveBack.setOnTouchListener(backTouchListener)
+
+        binding.turnLeft.setOnTouchListener(leftTouchListener)
+
+        binding.turnRight.setOnTouchListener(rightTouchListener)
+
+
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_vehicle_control, container, false)
 
-        binding.moveForward.setOnClickListener {
-            bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+        setControlMode()
+
+        binding.editModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (!isChecked) {
+                setControlMode()
+            } else {
+                setClickActions()
+                addTouchListenersToButtons(null, null, null, null)
+            }
         }
 
-        binding.moveBack.setOnClickListener {
-            bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
-        }
-
-        binding.turnLeft.setOnClickListener {
-            bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
-        }
-
-        binding.turnRight.setOnClickListener {
-            bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
-        }
-
-        setLongPressesActions()
         return binding.root
+    }
+
+    private fun setControlMode() {
+
+        binding.moveForward.setOnLongClickListener(null)
+        binding.moveBack.setOnLongClickListener(null)
+        binding.turnLeft.setOnLongClickListener(null)
+        binding.turnRight.setOnLongClickListener(null)
+
+        binding.turnRight.setOnClickListener(null)
+        binding.turnRight.setOnClickListener(null)
+        binding.turnRight.setOnClickListener(null)
+        binding.turnRight.setOnClickListener(null)
+
+        addTouchListenersToButtons(forwardTouchListener, backTouchListener, leftTouchListener, rightTouchListener)
     }
 
     private fun setActions(actionsArray: ArrayList<String>) {
@@ -127,7 +204,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionsArray[10], actionsArray[11].toBoolean())
     }
 
-    private fun setLongPressesActions() {
+    private fun setClickActions() {
         binding.moveForward.setOnLongClickListener {
             showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), hasNewLine = actionForward.hasNewLine())
         }
@@ -143,6 +220,31 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         binding.turnRight.setOnLongClickListener {
             showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), hasNewLine = actionRight.hasNewLine())
         }
+
+        binding.moveForward.setOnClickListener {
+            Toast.makeText(activity,
+                    "${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}"
+                    , Toast.LENGTH_SHORT).show()
+        }
+
+        binding.moveBack.setOnClickListener {
+            Toast.makeText(activity,
+                    "${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}"
+                    , Toast.LENGTH_SHORT).show()
+        }
+
+        binding.turnLeft.setOnClickListener {
+            Toast.makeText(activity,
+                    "${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}"
+                    , Toast.LENGTH_SHORT).show()
+        }
+
+        binding.turnRight.setOnClickListener {
+            Toast.makeText(activity,
+                    "${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}"
+                    , Toast.LENGTH_SHORT).show()
+        }
+
     }
 
 
@@ -170,7 +272,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
                             actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionRelease, appendNewLine)
                         }
                     }
-
                 },
                 {
 
@@ -211,7 +312,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
             var toSave = text + "\n"
 
-            if(!containNewLine) toSave = toSave.replace("\n", "").trim()
+            if (!containNewLine) toSave = toSave.replace("\n", "").trim()
 
             when (action) {
                 Action.PRESS -> this.pressAction = toSave

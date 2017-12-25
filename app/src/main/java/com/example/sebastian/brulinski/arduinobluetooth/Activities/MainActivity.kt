@@ -324,7 +324,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
         if (!isConnected)
             Toast.makeText(applicationContext, getString(R.string.message_no_sent), Toast.LENGTH_SHORT).show()
-
         try {
             myBluetooth.write(toWrite, myBluetooth.getBluetoothSocket()!!.outputStream)
         } catch (e: KotlinNullPointerException) {

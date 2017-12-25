@@ -39,4 +39,5 @@
     <string name="release_action">Release action</string>
     <string name="append_new_line">Append new line</string>
     <string name="change_button_config">Change button config</string>
+    <string name="edit_mode">Edit mode</string>
 </resources>

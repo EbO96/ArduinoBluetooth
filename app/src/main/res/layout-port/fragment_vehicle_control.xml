@@ -9,28 +9,45 @@
         android:focusable="true"
         tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment">
 
-        <ImageButton
-            android:id="@+id/move_forward"
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            android:layout_alignParentStart="true"
+        <Switch
+            android:id="@+id/edit_mode_switch"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:layout_margin="4dp"
-            android:background="#FFFFFF"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_up_black_48dp"
-            android:text="@string/up" />
+            android:layout_margin="16dp"
+            android:checked="false"
+            android:text="@string/edit_mode"
+            android:textColor="#FFFFFF" />
 
-        <ImageButton
-            android:id="@+id/move_back"
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            android:layout_below="@id/move_forward"
-            android:layout_margin="4dp"
-            android:background="#FFFFFF"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_down_black_48dp"
-            android:text="@string/down" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/move_forward"
+                android:layout_width="144dp"
+                android:layout_height="144dp"
+                android:layout_margin="16dp"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_keyboard_arrow_up_black_48dp" />
+
+            <ImageButton
+                android:id="@+id/move_back"
+                android:layout_width="144dp"
+                android:layout_height="144dp"
+                android:layout_margin="16dp"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_keyboard_arrow_down_black_48dp" />
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/turn_left"
@@ -41,8 +58,7 @@
             android:layout_toStartOf="@id/turn_right"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_left_black_48dp"
-            android:text="@string/left" />
+            android:src="@drawable/ic_keyboard_arrow_left_black_48dp" />
 
         <ImageButton
             android:id="@+id/turn_right"
@@ -53,8 +69,7 @@
             android:layout_margin="16dp"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_right_black_48dp"
-            android:text="@string/right" />
+            android:src="@drawable/ic_keyboard_arrow_right_black_48dp" />
 
 
     </RelativeLayout>
