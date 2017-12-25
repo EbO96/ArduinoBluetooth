@@ -147,7 +147,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
 
     private fun showDialog(action: Move, press: String, release: String, hasNewLine: Boolean): Boolean {
-        showChangeButtonConfigDialog(activity, getString(R.string.change_button_config), null, true, getString(android.R.string.ok),
+        showChangeButtonConfigDialog(activity, getString(R.string.change_button_config), action.toString(), true, getString(android.R.string.ok),
                 getString(android.R.string.cancel), press, release, hasNewLine,
 
                 { actionPress, actionRelease, appendNewLine ->
