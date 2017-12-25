@@ -3,25 +3,55 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.ViewAnimator
+import android.widget.*
 import com.example.sebastian.brulinski.arduinobluetooth.R
 
 fun <T> showAlert(context: Context, title: String?, message: String?, cancelable: Boolean,
-                  posButton: String, negButton: String, clickedPos: () -> T, clickedNeg: () -> T) {
+                  posButton: String, negButton: String, layout: View?, clickedPos: () -> T, clickedNeg: () -> T) {
     val builder = AlertDialog.Builder(context)
     builder.setTitle(title)
     builder.setMessage(message)
     builder.setCancelable(cancelable)
+    builder.setView(layout)
 
     builder.setPositiveButton(posButton, DialogInterface.OnClickListener { _, _ ->
         clickedPos()
     })
 
     builder.setNegativeButton(negButton, DialogInterface.OnClickListener { _, _ ->
+        clickedNeg()
+    })
+
+    builder.create().show()
+}
+
+fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message: String?, cancelable: Boolean, posButton: String, negButton: String,
+                                     press: String, release: String, hasNewLine: Boolean,
+                                     clickedPos: (actionPress: String, actionRelease: String, appendNewLine: Boolean) -> T, clickedNeg: () -> T) {
+
+    val mLayout = activity.layoutInflater.inflate(R.layout.change_button_config_dialog_layout, null)
+
+    val builder = AlertDialog.Builder(activity)
+    builder.setTitle(title)
+    builder.setMessage(message)
+    builder.setCancelable(cancelable)
+    builder.setView(mLayout)
+
+    val pressAction = mLayout.findViewById<EditText>(R.id.press_action_edit_text)
+    val releaseAction =  mLayout.findViewById<EditText>(R.id.release_action_edit_text)
+    val appendNewLine =  mLayout.findViewById<CheckBox>(R.id.append_new_line_check_box)
+
+    pressAction.setText(press)
+    releaseAction.setText(release)
+    appendNewLine.isChecked = hasNewLine
+
+    builder.setPositiveButton(posButton, { _, _ ->
+        clickedPos("${pressAction.text}", "${releaseAction.text}", appendNewLine.isChecked)
+    })
+
+    builder.setNegativeButton(negButton, { _, _ ->
         clickedNeg()
     })
 

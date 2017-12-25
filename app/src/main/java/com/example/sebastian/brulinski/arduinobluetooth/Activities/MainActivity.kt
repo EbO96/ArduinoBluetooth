@@ -121,7 +121,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         if (addLabelFlag)
             this.add(MyBluetoothDevice(null, false, MyBluetoothDevice.Companion.DeviceType.LABEL, labelText))
 
-        Log.d(TAG, device.name)
         this.add(MyBluetoothDevice(device, false, type, null))
     }
 
@@ -174,7 +173,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                         }
 
                         BluetoothAdapter.STATE_ON -> {
-
+                            mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_BT_ON)
                         }
                     }
                 }

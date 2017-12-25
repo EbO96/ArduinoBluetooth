@@ -227,6 +227,8 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             }
         }else if(state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_FOUND){
             devicesAdapter.notifyDataSetChanged()
+        }else if(state == MainActivity.Companion.BluetoothStates.STATE_BT_ON){
+            setDevicesRecycler()
         }
     }
 

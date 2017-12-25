@@ -35,4 +35,8 @@
     <string name="connection_lost">Connection lost</string>
     <string name="first_connect_to_device_msg">First connect to device</string>
     <string name="message_no_sent">No connected device. The message has not been sent</string>
+    <string name="press_action">Press action</string>
+    <string name="release_action">Release action</string>
+    <string name="append_new_line">Append new line</string>
+    <string name="change_button_config">Change button config</string>
 </resources>
