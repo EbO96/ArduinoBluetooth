@@ -2,10 +2,15 @@ import android.app.ActionBar
 import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
+import android.support.design.widget.TextInputLayout
 import android.support.v7.app.AlertDialog
-import android.util.Log
+import android.text.InputType
 import android.view.View
-import android.widget.*
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.ProgressBar
 import com.example.sebastian.brulinski.arduinobluetooth.R
 
 fun <T> showAlert(context: Context, title: String?, message: String?, cancelable: Boolean,
@@ -28,7 +33,7 @@ fun <T> showAlert(context: Context, title: String?, message: String?, cancelable
 }
 
 fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message: String?, cancelable: Boolean, posButton: String, negButton: String,
-                                     press: String, release: String, hasNewLine: Boolean,
+                                     press: String, release: String, hasNewLine: Boolean, isSeekBar: Boolean,
                                      clickedPos: (actionPress: String, actionRelease: String, appendNewLine: Boolean) -> T, clickedNeg: () -> T) {
 
     val mLayout = activity.layoutInflater.inflate(R.layout.change_button_config_dialog_layout, null)
@@ -40,8 +45,18 @@ fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message
     builder.setView(mLayout)
 
     val pressAction = mLayout.findViewById<EditText>(R.id.press_action_edit_text)
-    val releaseAction =  mLayout.findViewById<EditText>(R.id.release_action_edit_text)
-    val appendNewLine =  mLayout.findViewById<CheckBox>(R.id.append_new_line_check_box)
+    val releaseAction = mLayout.findViewById<EditText>(R.id.release_action_edit_text)
+    val appendNewLine = mLayout.findViewById<CheckBox>(R.id.append_new_line_check_box)
+
+    val pressInputLayout = mLayout.findViewById<TextInputLayout>(R.id.press_in_layout)
+    val releaseInputLayout = mLayout.findViewById<TextInputLayout>(R.id.release_in_layout)
+
+    if(isSeekBar){
+        pressInputLayout.hint = activity.getString(R.string.maximum_value)
+        releaseInputLayout.hint = activity.getString(R.string.minimum_value)
+        pressAction.inputType = InputType.TYPE_CLASS_NUMBER
+        releaseAction.inputType = InputType.TYPE_CLASS_NUMBER
+    }
 
     pressAction.setText(press)
     releaseAction.setText(release)
@@ -55,7 +70,10 @@ fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message
         clickedNeg()
     })
 
-    builder.create().show()
+    val alertDialog = builder.create()
+    alertDialog.window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
+
+    alertDialog.show()
 }
 
 fun <T> showLoginDialog(activity: Activity, buttonClick: (email: String, password: String, dialog: AlertDialog) -> T) {
