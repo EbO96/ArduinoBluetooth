@@ -14,7 +14,6 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
@@ -27,6 +26,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import org.jetbrains.anko.toast
 import showLoginDialog
 
 class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
@@ -55,7 +55,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     //START
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
 
 
@@ -102,7 +101,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
                         webCommandsReference.removeEventListener(webCommandsEventListener)
                     }
                 } else {
-                    Toast.makeText(activity, getString(R.string.first_connect_to_device_msg), Toast.LENGTH_SHORT).show()
+                    activity.toast(R.string.first_connect_to_device_msg)
                     Handler().postDelayed({
                         disconnectFromWeb()
                     }, 500)
@@ -133,13 +132,13 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         val mAuth = FirebaseAuth.getInstance()
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(activity, "${getString(R.string.account_created_successfully)}: $email", Toast.LENGTH_SHORT).show()
+                activity.toast("${getString(R.string.account_created_successfully)}: $email")
                 checkAlreadyLoggedIn()
             } else {
                 if (task.exception?.message == "The email address is already in use by another account.")
                     mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { taskLogin ->
                         if (taskLogin.isSuccessful) {
-                            Toast.makeText(activity, getString(R.string.logged_successfully), Toast.LENGTH_SHORT).show()
+                            activity.toast(R.string.logged_successfully)
                             checkAlreadyLoggedIn()
                         }
                     }
@@ -216,8 +215,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             if (binding.devicesRecycler.adapter != null) {
                 bluetoothActionsCallback.getMyBluetoothDevices()
                 devicesAdapter.notifyDataSetChanged()
-            }
-            else setDevicesRecycler()
+            } else setDevicesRecycler()
         }
     }
 

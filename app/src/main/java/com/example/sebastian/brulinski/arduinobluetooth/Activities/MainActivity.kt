@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment
@@ -28,6 +27,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import org.jetbrains.anko.toast
 import showConnectingToDeviceAlert
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothActionsInterface {
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     //Receiver used to handle found devices
-   private val devicesReceiver by lazy {
+    private val devicesReceiver by lazy {
         object : BroadcastReceiver() {
 
             override fun onReceive(p0: Context?, p1: Intent?) {
@@ -162,8 +162,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
             if (permissionCheck != PackageManager.PERMISSION_GRANTED &&
                     !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 Log.d(TAG, "permissions not granted")
-                Toast.makeText(this, "Grand location permissions, because bluetooth devices can share fine location",
-                        Toast.LENGTH_LONG).show()
+                toast("Grand location permissions, because bluetooth devices can share fine location")
                 finish()
             }
         }
@@ -185,11 +184,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                             mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_BT_OFF)
                         }
                         BluetoothAdapter.STATE_TURNING_OFF -> {
-                            //Toast.makeText(this@MainActivity, "state turning off", Toast.LENGTH_SHORT).show()
 
                         }
                         BluetoothAdapter.STATE_TURNING_ON -> {
-                            //Toast.makeText(this@MainActivity, "state turning on", Toast.LENGTH_SHORT).show()
 
                         }
 
@@ -309,7 +306,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
         if (requestCode == ENABLE_BT_REQUEST_CODE) run {
             if (!BluetoothAdapter.getDefaultAdapter().isEnabled)
-                Toast.makeText(this, "This app need enabled bluetooth", Toast.LENGTH_SHORT).show()
+                toast("This app need enabled bluetooth")
         }
     }
 
@@ -355,11 +352,11 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun writeToDevice(toWrite: ByteArray) {
 
         if (!isConnected)
-            Toast.makeText(applicationContext, getString(R.string.message_no_sent), Toast.LENGTH_SHORT).show()
+            toast(R.string.message_no_sent)
         try {
             myBluetooth.write(toWrite, myBluetooth.getBluetoothSocket()!!.outputStream)
         } catch (e: KotlinNullPointerException) {
-            Toast.makeText(applicationContext, getString(R.string.cant_send_message), Toast.LENGTH_SHORT).show()
+            toast(R.string.cant_send_message)
         }
     }
 
@@ -368,6 +365,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun isBluetoothOn(): Boolean = isBluetoothOn
 
     override fun readFromDevice() {
+
     }
 
     override fun connectToDevice(device: BluetoothDevice) {

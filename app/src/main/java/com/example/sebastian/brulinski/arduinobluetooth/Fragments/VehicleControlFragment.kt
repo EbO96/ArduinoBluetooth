@@ -12,12 +12,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentVehicleControlBinding
+import org.jetbrains.anko.toast
 import showChangeButtonConfigDialog
 
 class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
@@ -303,27 +303,19 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         }
 
         binding.moveForward.setOnClickListener {
-            Toast.makeText(activity,
-                    "${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}"
-                    , Toast.LENGTH_SHORT).show()
+            activity.toast("${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}")
         }
 
         binding.moveBack.setOnClickListener {
-            Toast.makeText(activity,
-                    "${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}"
-                    , Toast.LENGTH_SHORT).show()
+            activity.toast("${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}")
         }
 
         binding.turnLeft.setOnClickListener {
-            Toast.makeText(activity,
-                    "${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}"
-                    , Toast.LENGTH_SHORT).show()
+            activity.toast("${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}")
         }
 
         binding.turnRight.setOnClickListener {
-            Toast.makeText(activity,
-                    "${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}"
-                    , Toast.LENGTH_SHORT).show()
+            activity.toast("${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}")
         }
 
         binding.speedSeekBar.setOnTouchListener { _, motionEvent ->
