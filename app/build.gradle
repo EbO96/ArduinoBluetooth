@@ -34,7 +34,16 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile "org.jetbrains.anko:anko-commons:0.10.2"
+    compile "org.jetbrains.anko:anko-commons:0.10.3"
+
+    // Anko Layouts
+    compile "org.jetbrains.anko:anko-sdk25:0.10.3" // sdk15, sdk19, sdk21, sdk23 are also available
+    compile "org.jetbrains.anko:anko-appcompat-v7:0.10.3"
+
+    // Coroutine listeners for Anko Layouts
+    compile "org.jetbrains.anko:anko-sdk25-coroutines:0.10.3"
+    compile "org.jetbrains.anko:anko-appcompat-v7-coroutines:0.10.3"
 }
+
 
 apply plugin: 'com.google.gms.google-services'

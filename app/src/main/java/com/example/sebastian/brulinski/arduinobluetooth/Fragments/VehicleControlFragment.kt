@@ -277,11 +277,14 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         var myProgress = progress
         myProgress += speedSeekBar.release().toInt()
 
-        val toWrite = "${speedSeekBar.speedSeekBarId()}$myProgress"
-        val newLine = if (speedSeekBar.hasNewLine()) "$toWrite\n"
-        else toWrite
+        val toWrite = "${speedSeekBar.speedSeekBarId()}$myProgress".addNewLine { speedSeekBar.hasNewLine() }
 
-        bluetoothActionsCallback.writeToDevice(newLine.toByteArray())
+        bluetoothActionsCallback.writeToDevice(toWrite)
+    }
+
+    private fun String.addNewLine(condition: () -> Boolean): ByteArray {
+        return if (condition()) "$this\n".toByteArray()
+        else this.toByteArray()
     }
 
     //Response for widget click in edit mode or control mode

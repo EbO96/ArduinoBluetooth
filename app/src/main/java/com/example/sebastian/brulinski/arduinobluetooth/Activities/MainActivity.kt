@@ -146,6 +146,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
         //Get bluetooth instance
