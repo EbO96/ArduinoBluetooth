@@ -43,61 +43,53 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     //Touch listeners
     private val forwardTouchListener by lazy {
-        object : View.OnTouchListener {
-            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
+        View.OnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
 
-                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
-                }
-                return true
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
             }
+            true
         }
     }
 
     //Touch listeners
     private val backTouchListener by lazy {
-        object : View.OnTouchListener {
-            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
+        View.OnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
 
-                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
-                }
-                return true
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
             }
+            true
         }
     }
 
     //Touch listeners
     private val leftTouchListener by lazy {
-        object : View.OnTouchListener {
-            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
+        View.OnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
 
-                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
-                }
-                return true
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
             }
+            true
         }
     }
 
     //Touch listeners
     private val rightTouchListener by lazy {
-        object : View.OnTouchListener {
-            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
+        View.OnTouchListener { _, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
 
-                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                    bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
-                }
-                return true
+            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
             }
+            true
         }
     }
 
