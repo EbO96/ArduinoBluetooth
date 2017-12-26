@@ -198,12 +198,12 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        speed_seek_bar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
+        vehicleSpeedSeekBar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
         sendWhenMoved = speedSeekBar.sendWhenItMoves()
-        send_when_moved_switch.isChecked = sendWhenMoved
+        sendWhenItMovesSwitch.isChecked = sendWhenMoved
         setControlMode()
 
-        edit_mode_switch.setOnCheckedChangeListener { _, isChecked ->
+        editModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (!isChecked) {
                 setControlMode()
             } else {
@@ -212,7 +212,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
             }
         }
 
-        send_when_moved_switch.setOnCheckedChangeListener { _, isChecked ->
+        sendWhenItMovesSwitch.setOnCheckedChangeListener { _, isChecked ->
             sendWhenMoved = isChecked
             speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", sendWhenMoved, null, speedSeekBar.hasNewLine())
         }
@@ -227,30 +227,30 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     private fun addTouchListenersToButtons(forwardTouchListener: View.OnTouchListener?, backTouchListener: View.OnTouchListener?,
                                            leftTouchListener: View.OnTouchListener?, rightTouchListener: View.OnTouchListener?) {
 
-        move_forward.setOnTouchListener(forwardTouchListener)
+        moveForwardImageButton.setOnTouchListener(forwardTouchListener)
 
-        move_back.setOnTouchListener(backTouchListener)
+        moveBackImageButton.setOnTouchListener(backTouchListener)
 
-        turn_left.setOnTouchListener(leftTouchListener)
+        turnLeftImageButton.setOnTouchListener(leftTouchListener)
 
-        turn_right.setOnTouchListener(rightTouchListener)
+        turnRightImageButton.setOnTouchListener(rightTouchListener)
     }
 
     private fun setControlMode() { //Enable all widgets and set responses for they
 
-        move_forward.setOnLongClickListener(null)
-        move_back.setOnLongClickListener(null)
-        turn_left.setOnLongClickListener(null)
-        turn_right.setOnLongClickListener(null)
+        moveForwardImageButton.setOnLongClickListener(null)
+        moveBackImageButton.setOnLongClickListener(null)
+        turnLeftImageButton.setOnLongClickListener(null)
+        turnRightImageButton.setOnLongClickListener(null)
 
-        turn_right.setOnClickListener(null)
-        turn_right.setOnClickListener(null)
-        turn_right.setOnClickListener(null)
-        turn_right.setOnClickListener(null)
+        turnRightImageButton.setOnClickListener(null)
+        turnRightImageButton.setOnClickListener(null)
+        turnRightImageButton.setOnClickListener(null)
+        turnRightImageButton.setOnClickListener(null)
 
-        speed_seek_bar.setOnTouchListener(null)
+        vehicleSpeedSeekBar.setOnTouchListener(null)
 
-        speed_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        vehicleSpeedSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
             override fun onProgressChanged(seekBar: SeekBar, p1: Int, p2: Boolean) {
                 if (sendWhenMoved && bluetoothActionsCallback.isConnectedToDevice()) {
@@ -287,47 +287,47 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Response for widget click in edit mode or control mode
     private fun setClickActions() {
 
-        move_forward.setOnLongClickListener {
-            move_forward.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionForward.hasNewLine())
+        moveForwardImageButton.setOnLongClickListener {
+            moveForwardImageButton.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionForward.hasNewLine())
         }
 
-        move_back.setOnLongClickListener {
-            move_forward.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionBack.hasNewLine())
+        moveBackImageButton.setOnLongClickListener {
+            moveForwardImageButton.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionBack.hasNewLine())
         }
 
-        turn_left.setOnLongClickListener {
-            move_forward.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionLeft.hasNewLine())
+        turnLeftImageButton.setOnLongClickListener {
+            moveForwardImageButton.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionLeft.hasNewLine())
         }
 
-        turn_right.setOnLongClickListener {
-            move_forward.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionRight.hasNewLine())
+        turnRightImageButton.setOnLongClickListener {
+            moveForwardImageButton.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionRight.hasNewLine())
         }
 
-        move_forward.setOnClickListener {
+        moveForwardImageButton.setOnClickListener {
             activity.toast("${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}")
         }
 
-        move_back.setOnClickListener {
+        moveBackImageButton.setOnClickListener {
             activity.toast("${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}")
         }
 
-        turn_left.setOnClickListener {
+        turnLeftImageButton.setOnClickListener {
             activity.toast("${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}")
         }
 
-        turn_right.setOnClickListener {
+        turnRightImageButton.setOnClickListener {
             activity.toast("${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}")
         }
 
-        speed_seek_bar.setOnTouchListener { _, motionEvent ->
+        vehicleSpeedSeekBar.setOnTouchListener { _, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                speed_seek_bar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.speedSeekBarId(), speedSeekBar.hasNewLine())
+                vehicleSpeedSeekBar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.speedSeekBarId(), speedSeekBar.hasNewLine())
 
             }
             true
         }
 
-        speed_seek_bar.setOnSeekBarChangeListener(null)
+        vehicleSpeedSeekBar.setOnSeekBarChangeListener(null)
     }
 
     //Show this dialog when we want to edit some responses at widgets

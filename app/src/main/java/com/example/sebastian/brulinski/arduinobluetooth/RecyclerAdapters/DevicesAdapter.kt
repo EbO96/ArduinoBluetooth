@@ -56,9 +56,9 @@ class DevicesAdapter(private var devices: ArrayList<MyBluetoothDevice>, private 
     }
 
     inner class DeviceViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView), ViewBindInterface {
-        val name = itemView?.findViewById<TextView>(R.id.device_name)
-        val mac = itemView?.findViewById<TextView>(R.id.device_mac)
-        val connectedImageView = itemView?.findViewById<ImageView>(R.id.connected_image_view)
+        val name = itemView?.findViewById<TextView>(R.id.deviceNameTextView)
+        val mac = itemView?.findViewById<TextView>(R.id.deviceMacTextView)
+        val connectedImageView = itemView?.findViewById<ImageView>(R.id.connectedImageView)
 
         override fun bindViews(device: MyBluetoothDevice, position: Int) {
             name?.text = device.device?.name
@@ -71,7 +71,7 @@ class DevicesAdapter(private var devices: ArrayList<MyBluetoothDevice>, private 
     }
 
     inner class LabelViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView), ViewBindInterface {
-        val lable = itemView?.findViewById<TextView>(R.id.device_state_label)
+        val lable = itemView?.findViewById<TextView>(R.id.deviceStateLabel)
 
         override fun bindViews(device: MyBluetoothDevice, position: Int) {
             lable?.text = device.label

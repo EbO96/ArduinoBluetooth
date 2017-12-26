@@ -64,12 +64,12 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
         setProperFragmentCallback = activity as SetProperFragmentInterface //Init interface used to changing fragments in container
 
-        terminal_button.setOnClickListener {
+        terminalButton.setOnClickListener {
             setProperFragmentCallback.setTerminalFragment()
         }
 
         //On/Off control from Website
-        control_from_web_switch.setOnCheckedChangeListener { compoundButton, checked ->
+        controlFromWebSwitch.setOnCheckedChangeListener { compoundButton, checked ->
             if (checked) {
                 if (checkAlreadyLoggedIn()) {
 
@@ -84,7 +84,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             if (checkAlreadyLoggedIn()) {
                 if (bluetoothActionsCallback.isConnectedToDevice()) {
                     if (checked) {
-                        link_text_view.visibility = View.VISIBLE
+                        webControlLinkTextView.visibility = View.VISIBLE
                         webCommandsEventListener = webCommandsReference.addValueEventListener(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot?) {
                                 //When user are logged then we can send to device all incoming messages from web
@@ -96,7 +96,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
                             }
                         })
                     } else {
-                        link_text_view.visibility = View.INVISIBLE
+                        webControlLinkTextView.visibility = View.INVISIBLE
                         webCommandsReference.removeEventListener(webCommandsEventListener)
                     }
                 } else {
@@ -115,13 +115,13 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         /**
          *Set proper fragment
          */
-        vehicle_control_button.setOnClickListener {
+        vehicleControlButton.setOnClickListener {
             setProperFragmentCallback.setVehicleControlFragment()
         }
 
-        cancel_discovering_button.setOnClickListener {
+        cancelDiscoveringButton.setOnClickListener {
             bluetoothActionsCallback.stopDiscoveringDevices()
-            discover_devices_layout.visibility = View.GONE
+            discoverDevicesRootLayout.visibility = View.GONE
         }
 
     }
@@ -154,8 +154,8 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     private fun setDevicesRecycler() { //Init recycler where all found and paired devices are displayed
         val layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         val itemDecorator = DividerItemDecoration(activity, layoutManager.orientation)
-        devices_recycler.addItemDecoration(itemDecorator)
-        devices_recycler.layoutManager = layoutManager
+        devicesRecycler.addItemDecoration(itemDecorator)
+        devicesRecycler.layoutManager = layoutManager
 
         //This listener responses at click at devices list
         val clickListener = View.OnClickListener { view ->
@@ -163,14 +163,14 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         }
         //Set devices adapter
         devicesAdapter = DevicesAdapter(bluetoothActionsCallback.getMyBluetoothDevices(), activity, clickListener)
-        devices_recycler.adapter = devicesAdapter
+        devicesRecycler.adapter = devicesAdapter
     }
 
     private fun getDeviceAndConnect(view: View?, btDevice: BluetoothDevice?) { //Connect to selected device
         val device: BluetoothDevice?
 
         device = if (view != null) {
-            val foundDevice = findDeviceByName("${view.findViewById<TextView>(R.id.device_name).text}")
+            val foundDevice = findDeviceByName("${view.findViewById<TextView>(R.id.deviceNameTextView).text}")
             foundDevice
 
         } else btDevice
@@ -199,18 +199,18 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     override fun update(state: MainActivity.Companion.BluetoothStates) {
 
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded) {
-            connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.INVISIBLE
+            connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.INVISIBLE
             showDisconnectMessage()
             disconnectFromWeb()
             connectedDeviceView = null
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED && this.isAdded) {
             activity.runOnUiThread {
-                connectedDeviceView?.findViewById<ImageView>(R.id.connected_image_view)?.visibility = View.VISIBLE
+                connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.VISIBLE
             }
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_FOUND) {
             devicesAdapter.notifyDataSetChanged()
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_BT_ON) {
-            if (devices_recycler.adapter != null) {
+            if (devicesRecycler.adapter != null) {
                 bluetoothActionsCallback.getMyBluetoothDevices()
                 devicesAdapter.notifyDataSetChanged()
             } else setDevicesRecycler()
@@ -223,12 +223,12 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         } catch (e: RuntimeException) {
             e.printStackTrace()
         }
-        control_from_web_switch.isChecked = false
-        link_text_view.visibility = View.INVISIBLE
+        controlFromWebSwitch.isChecked = false
+        webControlLinkTextView.visibility = View.INVISIBLE
     }
 
     private fun showDisconnectMessage() {
-        val deviceName = connectedDeviceView?.findViewById<TextView>(R.id.device_name)?.text.toString()
+        val deviceName = connectedDeviceView?.findViewById<TextView>(R.id.deviceNameTextView)?.text.toString()
         Snackbar.make(ConnectToDeviceRootView, "${getString(R.string.disconnected_from_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
     }
 
@@ -242,7 +242,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.discover_devices -> {
-                val view = discover_devices_layout
+                val view = discoverDevicesRootLayout
                 if (view.visibility != View.VISIBLE) {
                     bluetoothActionsCallback.startDiscoveringDevices()
                     view.visibility = View.VISIBLE
@@ -250,7 +250,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             }
             R.id.logout -> {
                 FirebaseAuth.getInstance().signOut()
-                control_from_web_switch.isChecked = false
+                controlFromWebSwitch.isChecked = false
                 checkAlreadyLoggedIn()
             }
         }

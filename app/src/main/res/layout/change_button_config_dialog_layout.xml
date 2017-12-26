@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -11,53 +10,53 @@
 
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/press_in_layout"
+            android:id="@+id/pressActionInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/press_action"
-            android:labelFor="@id/press_action_edit_text"
+            android:labelFor="@id/pressActionEditText"
             android:padding="4dp">
 
             <EditText
-                android:id="@+id/press_action_edit_text"
+                android:id="@+id/pressActionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/release_in_layout"
+            android:id="@+id/releaseActionInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/release_action"
-            android:labelFor="@id/release_action_edit_text"
+            android:labelFor="@id/releaseActionEditText"
             android:padding="4dp">
 
             <EditText
-                android:id="@+id/release_action_edit_text"
+                android:id="@+id/releaseActionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
         </android.support.design.widget.TextInputLayout>
 
         <CheckBox
-            android:id="@+id/append_new_line_check_box"
+            android:id="@+id/appendNewLineCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="@string/append_new_line" />
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/seekbar_id_layout"
+            android:id="@+id/seekbarIdInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/char_id_of_this_seekbar_before_value"
-            android:labelFor="@id/seekbar_id_edit_text"
+            android:labelFor="@id/seekbarIdEditText"
             android:padding="4dp"
             android:visibility="gone">
 
             <EditText
-                android:id="@+id/seekbar_id_edit_text"
+                android:id="@+id/seekbarIdEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />

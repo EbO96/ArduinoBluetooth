@@ -12,7 +12,7 @@ fun showConnectingToDeviceAlert(activity: Activity, title: String?, message: Str
                                     layout: Int): AlertDialog {
 
     val mLayout = activity.layoutInflater.inflate(layout, null)
-    mLayout.findViewById<TextView>(R.id.target_device_name).text = deviceName
+    mLayout.findViewById<TextView>(R.id.targetDeviceName).text = deviceName
 
     val builder = AlertDialog.Builder(activity)
     builder.setTitle(title)
@@ -39,14 +39,14 @@ fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message
     builder.setCancelable(cancelable)
     builder.setView(mLayout)
 
-    val pressAction = mLayout.findViewById<EditText>(R.id.press_action_edit_text)
-    val releaseAction = mLayout.findViewById<EditText>(R.id.release_action_edit_text)
-    val appendNewLine = mLayout.findViewById<CheckBox>(R.id.append_new_line_check_box)
-    val seekBarId = mLayout.findViewById<EditText>(R.id.seekbar_id_edit_text)
+    val pressAction = mLayout.findViewById<EditText>(R.id.pressActionEditText)
+    val releaseAction = mLayout.findViewById<EditText>(R.id.releaseActionEditText)
+    val appendNewLine = mLayout.findViewById<CheckBox>(R.id.appendNewLineCheckBox)
+    val seekBarId = mLayout.findViewById<EditText>(R.id.seekbarIdEditText)
 
-    val pressInputLayout = mLayout.findViewById<TextInputLayout>(R.id.press_in_layout)
-    val releaseInputLayout = mLayout.findViewById<TextInputLayout>(R.id.release_in_layout)
-    val seekBarIdInputLayout = mLayout.findViewById<TextInputLayout>(R.id.seekbar_id_layout)
+    val pressInputLayout = mLayout.findViewById<TextInputLayout>(R.id.pressActionInputLayout)
+    val releaseInputLayout = mLayout.findViewById<TextInputLayout>(R.id.releaseActionInputLayout)
+    val seekBarIdInputLayout = mLayout.findViewById<TextInputLayout>(R.id.seekbarIdInputLayout)
 
     if (isSeekBar) {
         pressInputLayout.hint = activity.getString(R.string.maximum_value)
@@ -79,10 +79,10 @@ fun <T> showLoginDialog(activity: Activity, buttonClick: (email: String, passwor
 
     val layout = activity.layoutInflater.inflate(R.layout.login_fragment, null)
 
-    val email = layout.findViewById<EditText>(R.id.email_edit_text)
-    val password = layout.findViewById<EditText>(R.id.password_edit_text)
-    val loginOrRegister = layout.findViewById<Button>(R.id.login_register_button)
-    val authProgressBar = layout.findViewById<ProgressBar>(R.id.auth_progress_bar)
+    val email = layout.findViewById<EditText>(R.id.emailEditText)
+    val password = layout.findViewById<EditText>(R.id.passwordEditText)
+    val loginOrRegister = layout.findViewById<Button>(R.id.loginOrRegisterButton)
+    val authProgressBar = layout.findViewById<ProgressBar>(R.id.authProgressBar)
     authProgressBar.visibility = View.GONE
 
     val dialog = AlertDialog.Builder(activity)

@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                 val DEVICE = "device"
                 val msgData = msg?.data
                 val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
-                Snackbar.make(findViewById(R.id.main_container), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(R.id.mainFragmentsContainer), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
                 connectToDeviceDialog?.dismiss()
                 connectToDeviceDialog = null
             }
@@ -314,7 +314,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         val transaction = fragmentManager.beginTransaction()
         currentFragment = connectToDevice
         mBluetoothStateDirector.registerObserver(connectToDevice)
-        transaction.add(R.id.main_container, currentFragment)
+        transaction.add(R.id.mainFragmentsContainer, currentFragment)
         transaction.commit()
     }
 
@@ -323,7 +323,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         val transaction = fragmentManager.beginTransaction()
         currentFragment = terminal
         mBluetoothStateDirector.registerObserver(terminal)
-        transaction.add(R.id.main_container, currentFragment)
+        transaction.add(R.id.mainFragmentsContainer, currentFragment)
         transaction.addToBackStack(TERMINAL_TAG)
         transaction.commit()
     }
@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         val transaction = fragmentManager.beginTransaction()
         currentFragment = vehicleControl
         mBluetoothStateDirector.registerObserver(vehicleControl)
-        transaction.add(R.id.main_container, vehicleControl)
+        transaction.add(R.id.mainFragmentsContainer, vehicleControl)
         transaction.addToBackStack(VEHICLE_CONTROL_TAG)
         transaction.commit()
     }

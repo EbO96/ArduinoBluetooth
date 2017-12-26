@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/target_device_name"
+        android:id="@+id/targetDeviceName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Device name"

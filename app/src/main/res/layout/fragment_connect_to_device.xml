@@ -23,7 +23,7 @@
                 android:orientation="vertical">
 
                 <RelativeLayout
-                    android:id="@+id/discover_devices_layout"
+                    android:id="@+id/discoverDevicesRootLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#FFFFFF"
@@ -31,7 +31,7 @@
 
 
                     <ProgressBar
-                        android:id="@+id/discover_devices_progress_bar"
+                        android:id="@+id/discoverDevicesProgressBar"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="24dp"
@@ -41,12 +41,12 @@
                         android:max="100" />
 
                     <Button
-                        android:id="@+id/cancel_discovering_button"
+                        android:id="@+id/cancelDiscoveringButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
-                        android:layout_below="@id/discover_devices_progress_bar"
+                        android:layout_below="@id/discoverDevicesProgressBar"
                         android:background="@android:color/transparent"
                         android:paddingEnd="8dp"
                         android:paddingLeft="0dp"
@@ -58,7 +58,7 @@
                 </RelativeLayout>
 
                 <android.support.v7.widget.RecyclerView
-                    android:id="@+id/devices_recycler"
+                    android:id="@+id/devicesRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#FFFFFF" />
@@ -82,7 +82,7 @@
                 android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/terminal_button"
+                    android:id="@+id/terminalButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
@@ -94,7 +94,7 @@
                     android:textColor="#ffffff" />
 
                 <Switch
-                    android:id="@+id/control_from_web_switch"
+                    android:id="@+id/controlFromWebSwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
@@ -105,7 +105,7 @@
                     android:textColor="#ffffff" />
 
                 <TextView
-                    android:id="@+id/link_text_view"
+                    android:id="@+id/webControlLinkTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
@@ -116,7 +116,7 @@
                     android:visibility="invisible" />
 
                 <Button
-                    android:id="@+id/vehicle_control_button"
+                    android:id="@+id/vehicleControlButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
