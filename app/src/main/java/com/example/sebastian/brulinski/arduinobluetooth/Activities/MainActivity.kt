@@ -44,10 +44,10 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private var permissionCheck: Int? = null
 
     //Fragments
-    private val fragmentManager = supportFragmentManager
-    private val connectToDevice = ConnectToDevice()
-    private val terminal = Terminal()
-    private val vehicleControl = VehicleControlFragment()
+    private val fragmentManager by lazy { supportFragmentManager }
+    private val connectToDevice by lazy { ConnectToDevice() }
+    private val terminal by lazy { Terminal() }
+    private val vehicleControl by lazy { VehicleControlFragment() }
     private var currentFragment: Fragment? = null
 
     //Fragment dialogs
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private lateinit var disconnectReceiver: BroadcastReceiver
 
     companion object {
-        val mBluetoothStateDirector = BluetoothStateDirector()
+        val mBluetoothStateDirector by lazy { BluetoothStateDirector() }
 
         //Bluetooth state flags
         enum class BluetoothStates {
@@ -76,37 +76,41 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     //Handlers
-    private val connectHandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message?) {
-            Looper.prepare()
+    private val connectHandler by lazy {
+        object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message?) {
+                Looper.prepare()
 
-            //Show Snackbar with information about which device has been connected
-            val DEVICE = "device"
-            val msgData = msg?.data
-            val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
-            Snackbar.make(findViewById(R.id.main_container), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
-            connectToDeviceDialog?.dismiss()
-            connectToDeviceDialog = null
+                //Show Snackbar with information about which device has been connected
+                val DEVICE = "device"
+                val msgData = msg?.data
+                val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
+                Snackbar.make(findViewById(R.id.main_container), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
+                connectToDeviceDialog?.dismiss()
+                connectToDeviceDialog = null
+            }
         }
     }
 
     //Receiver used to handle found devices
-    val devicesReceiver = object : BroadcastReceiver() {
+   private val devicesReceiver by lazy {
+        object : BroadcastReceiver() {
 
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            val action = p1!!.action
-            when (action) {
-                BluetoothDevice.ACTION_FOUND -> {
-                    val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                    if (extraDevice != null) {
-                        foundDevices.add(extraDevice)
-                        devices.checkIfAlreadyDeviceExistAndAddToList(extraDevice, MyBluetoothDevice.Companion.DeviceType.FOUND)
-                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_FOUND)
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val action = p1!!.action
+                when (action) {
+                    BluetoothDevice.ACTION_FOUND -> {
+                        val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        if (extraDevice != null) {
+                            foundDevices.add(extraDevice)
+                            devices.checkIfAlreadyDeviceExistAndAddToList(extraDevice, MyBluetoothDevice.Companion.DeviceType.FOUND)
+                            mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_FOUND)
+                        }
                     }
-                }
-                BluetoothDevice.ACTION_PAIRING_REQUEST -> {
-                    val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                    Log.d(TAG, "pair request from ${extraDevice.name}")
+                    BluetoothDevice.ACTION_PAIRING_REQUEST -> {
+                        val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                        Log.d(TAG, "pair request from ${extraDevice.name}")
+                    }
                 }
             }
         }

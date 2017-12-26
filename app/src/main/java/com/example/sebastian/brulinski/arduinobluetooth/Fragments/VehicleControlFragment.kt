@@ -26,11 +26,11 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     private val TAG = "VehicleControlFragment"
 
     //ButtonActions
-    private val actionForward = WidgetConfig()
-    private val actionBack = WidgetConfig()
-    private val actionLeft = WidgetConfig()
-    private val actionRight = WidgetConfig()
-    private val speedSeekBar = WidgetConfig()
+    private val actionForward by lazy { WidgetConfig() }
+    private val actionBack by lazy { WidgetConfig() }
+    private val actionLeft by lazy { WidgetConfig() }
+    private val actionRight by lazy { WidgetConfig() }
+    private val speedSeekBar by lazy { WidgetConfig() }
 
     //Seekbar flags
     private var sendWhenMoved = false
@@ -44,54 +44,62 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
 
     //Touch listeners
-    private val forwardTouchListener = object : View.OnTouchListener {
-        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
+    private val forwardTouchListener by lazy {
+        object : View.OnTouchListener {
+            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+                }
+                return true
             }
-            return true
         }
     }
 
     //Touch listeners
-    private val backTouchListener = object : View.OnTouchListener {
-        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
+    private val backTouchListener by lazy {
+        object : View.OnTouchListener {
+            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
+                }
+                return true
             }
-            return true
         }
     }
 
     //Touch listeners
-    private val leftTouchListener = object : View.OnTouchListener {
-        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
+    private val leftTouchListener by lazy {
+        object : View.OnTouchListener {
+            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
+                }
+                return true
             }
-            return true
         }
     }
 
     //Touch listeners
-    private val rightTouchListener = object : View.OnTouchListener {
-        override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
+    private val rightTouchListener by lazy {
+        object : View.OnTouchListener {
+            override fun onTouch(p0: View?, motionEvent: MotionEvent): Boolean {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+                }
+                return true
             }
-            return true
         }
     }
 

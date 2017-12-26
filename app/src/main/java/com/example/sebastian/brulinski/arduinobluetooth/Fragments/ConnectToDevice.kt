@@ -58,6 +58,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
 
+
         setHasOptionsMenu(true)//This fragment has own options menu
 
         //Set devices recycler
@@ -130,7 +131,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
     private fun loginOrCreateAccount(email: String, password: String, dialog: AlertDialog) {
         val mAuth = FirebaseAuth.getInstance()
-
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Toast.makeText(activity, "${getString(R.string.account_created_successfully)}: $email", Toast.LENGTH_SHORT).show()
