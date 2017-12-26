@@ -16,4 +16,5 @@ interface BluetoothActionsInterface {
     fun getConnectedDevice(): BluetoothDevice?
     fun getMyBluetoothDevices(): ArrayList<MyBluetoothDevice>
     fun isConnectedToDevice(): Boolean
+    fun isBluetoothOn(): Boolean
 }

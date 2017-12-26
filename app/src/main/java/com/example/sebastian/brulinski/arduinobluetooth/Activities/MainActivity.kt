@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private var foundDevices = ArrayList<BluetoothDevice>()
     private var devices = ArrayList<MyBluetoothDevice>()
     private var isConnected = false
+    private var isBluetoothOn = false
     private lateinit var bluetoothStateReceiver: BroadcastReceiver
     private lateinit var disconnectReceiver: BroadcastReceiver
 
@@ -128,7 +129,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         this.add(MyBluetoothDevice(device, false, type, null))
     }
 
-
+    /**
+     * START
+     */
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -166,6 +169,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
                     when (state) {
                         BluetoothAdapter.STATE_OFF -> {
+                            isBluetoothOn = false
                             turnOnBluetooth()
                             mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_BT_OFF)
                         }
@@ -179,6 +183,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                         }
 
                         BluetoothAdapter.STATE_ON -> {
+                            isBluetoothOn = true
                             mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_BT_ON)
                         }
                     }
@@ -346,6 +351,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun isConnectedToDevice(): Boolean = isConnected
+
+    override fun isBluetoothOn(): Boolean = isBluetoothOn
 
     override fun readFromDevice() {
     }
