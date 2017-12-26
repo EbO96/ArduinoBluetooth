@@ -30,13 +30,29 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothActionsInterface {
 
+    //Debug and fragments tags
     private val TAG = "MainActivity" //Log tag
-    private val TERMINAL_TAG = "TERMINAL" //Log tag
-    private val VEHICLE_CONTROL_TAG = "VEHICLE_CONTROL" //Log tag
+
+    private val TERMINAL_TAG = "TERMINAL" //fragment tag
+    private val VEHICLE_CONTROL_TAG = "VEHICLE_CONTROL" //fragment tag
+
+    //Request codes and permission codes
     private val LOCATION_PERMISSION_ID = 1001
     private val ENABLE_BT_REQUEST_CODE = 1
     private var permissionCheck: Int? = null
+
+    //Fragments
     private val fragmentManager = supportFragmentManager
+    private val connectToDevice = ConnectToDevice()
+    private val terminal = Terminal()
+    private val vehicleControl = VehicleControlFragment()
+    private var currentFragment: Fragment? = null
+
+    //Bluetooth
+    private lateinit var myBluetooth: MyBluetooth
+    private var foundDevices = ArrayList<BluetoothDevice>()
+    private var devices = ArrayList<MyBluetoothDevice>()
+    private var isConnected = false
     private lateinit var bluetoothStateReceiver: BroadcastReceiver
     private lateinit var disconnectReceiver: BroadcastReceiver
 
@@ -53,35 +69,20 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         }
     }
 
-    //Fragments
-    private val connectToDevice = ConnectToDevice()
-    private val terminal = Terminal()
-    private val vehicleControl = VehicleControlFragment()
-
-    //Bluetooth
-    private lateinit var myBluetooth: MyBluetooth //TODO added this as 2
-    private var foundDevices = ArrayList<BluetoothDevice>() //TODO 3
-    private var devices = ArrayList<MyBluetoothDevice>() //TODO 4
-    private var isConnected = false
-
-    //Handlers //TODO 5
+    //Handlers
     private val connectHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message?) {
             Looper.prepare()
 
-            //keys
+            //Show Snackbar with information about which device has been connected
             val DEVICE = "device"
             val msgData = msg?.data
-
             val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
-
             Snackbar.make(findViewById(R.id.main_container), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
         }
     }
 
-    //Broadcast Receivers
-    //Found devices receiver
-    //Get found devices
+    //Receiver used to handle found devices
     val devicesReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(p0: Context?, p1: Intent?) {
@@ -91,7 +92,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                     val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                     if (extraDevice != null) {
                         foundDevices.add(extraDevice)
-                        devices.checkIfAlreadyDeviceExist(extraDevice, MyBluetoothDevice.Companion.DeviceType.FOUND)
+                        devices.checkIfAlreadyDeviceExistAndAddToList(extraDevice, MyBluetoothDevice.Companion.DeviceType.FOUND)
                         mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_FOUND)
                     }
                 }
@@ -103,7 +104,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         }
     }
 
-    private fun ArrayList<MyBluetoothDevice>.checkIfAlreadyDeviceExist(device: BluetoothDevice, type: MyBluetoothDevice.Companion.DeviceType) {
+    //Add paired or found device to list
+    private fun ArrayList<MyBluetoothDevice>.checkIfAlreadyDeviceExistAndAddToList(device: BluetoothDevice, type: MyBluetoothDevice.Companion.DeviceType) {
 
         val labelText = if (type == MyBluetoothDevice.Companion.DeviceType.PAIRED) getString(R.string.paired)
         else getString(R.string.found)
@@ -118,27 +120,28 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                 .filter { it.device == device }
                 .forEach { return }
 
+        //Add label to list (Paired or Found)
         if (addLabelFlag)
             this.add(MyBluetoothDevice(null, false, MyBluetoothDevice.Companion.DeviceType.LABEL, labelText))
 
+        //Add device
         this.add(MyBluetoothDevice(device, false, type, null))
     }
 
-    private var currentFragment: Fragment? = null
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setShowHideAnimationEnabled(true)
-
-        //TODO added this as 1
+        //Get bluetooth instance
         myBluetooth = MyBluetooth(this, connectHandler, devicesReceiver)
 
+        //Check location permission
         permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//Check permission whether phone running on Marshmallow or above
+            //TODO fix this code later
             /*
         If app hasn't location permissions, show message and finish app
          */
@@ -151,6 +154,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
             }
         }
 
+        /**
+         * Add Broadcast receivers for Actions like CONNECTED, DISCONNECTED AND BT STATE CHANGES
+         */
         bluetoothStateReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val action = intent?.action
@@ -198,11 +204,16 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
             }
         }
 
-        registerReceiver(disconnectReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
-        registerReceiver(disconnectReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED))
+        val disconnectedConnectedIntentFilter = IntentFilter()
+
+        disconnectedConnectedIntentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+        disconnectedConnectedIntentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+
+        registerReceiver(disconnectReceiver, disconnectedConnectedIntentFilter)
 
         registerReceiver(bluetoothStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 
+        //Set fragment
         if (savedInstanceState == null) {
             setConnectToDeviceFragment()
         }
@@ -260,7 +271,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun onResume() {
         super.onResume()
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
-            turnOnBluetooth()
+            turnOnBluetooth() //Turn on bluetooth when disabled
         }
     }
 
@@ -320,6 +331,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
     }
 
+    /*
+    Methods to manage bluetooth actions
+     */
     override fun writeToDevice(toWrite: ByteArray) {
 
         if (!isConnected)
@@ -360,7 +374,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun getMyBluetoothDevices(): ArrayList<MyBluetoothDevice> {
 
         for (device in getPairedDevices()) {
-            devices.checkIfAlreadyDeviceExist(device, MyBluetoothDevice.Companion.DeviceType.PAIRED)
+            devices.checkIfAlreadyDeviceExistAndAddToList(device, MyBluetoothDevice.Companion.DeviceType.PAIRED)
         }
 
         return devices

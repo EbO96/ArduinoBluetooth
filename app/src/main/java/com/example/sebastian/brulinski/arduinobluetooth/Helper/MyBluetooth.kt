@@ -17,6 +17,10 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 import java.io.IOException
 import java.io.OutputStream
 
+/**
+ * This class is used to manage bluetooth
+ */
+
 class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryDevicesReceiver: BroadcastReceiver?) {
 
     var mBluetoothAdapter: BluetoothAdapter? = null
@@ -31,7 +35,6 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
     private lateinit var receiverIntentFilters: IntentFilter
 
     init {
-        Log.d(TAG, "MyBluetooth init")
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         /*
         Check whether device support bluetooth
@@ -43,13 +46,6 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
                     Toast.LENGTH_SHORT).show()
             activity?.finish()
         }
-
-//        if (!isBtEnabled()) {
-//            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            activity.startActivityForResult(enableBluetoothIntent, ENABLE_BT_REQUEST_CODE)
-//        } else {
-//            getPairedDevices()
-//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             receiverIntentFilters = IntentFilter()
@@ -95,9 +91,6 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
             e.printStackTrace()
         }
     }
-
-    // private fun isBtEnabled(): Boolean = mBluetoothAdapter!!.isEnabled
-
 
     inner class ConnectThread(device: BluetoothDevice, handler: Handler) : Thread() {
 

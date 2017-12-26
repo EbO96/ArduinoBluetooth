@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
@@ -38,9 +37,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     //Shared Preferences
     private val preferencesFileName = "buttons_config"
-
     private lateinit var sharedPref: SharedPreferences
-
     private lateinit var prefEditor: SharedPreferences.Editor
 
     //Callbacks
@@ -98,6 +95,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         }
     }
 
+    //Enum values
     enum class Move {
         FORWARD,
         BACK,
@@ -134,11 +132,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Init shared preferences
         sharedPref = activity.getSharedPreferences(preferencesFileName, Context.MODE_PRIVATE)
         prefEditor = sharedPref.edit()
 
         val actions = ArrayList<String>()
 
+        //Get widgets config from shared preferences or set default values
         actions.add(sharedPref.getString(FPKEY, "f"))
         actions.add(sharedPref.getString(FRKEY, "s"))
         actions.add(sharedPref.getBoolean(FHKEY, false).toString())
@@ -156,23 +156,29 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         actions.add(sharedPref.getBoolean(SEEK_HAS_KEY, false).toString())
         actions.add(sharedPref.getBoolean(SEEK_WHEN_SEND, false).toString())
 
+        //Set this config at widgets
         setActions(actions)
-
     }
 
-    private fun addTouchListenersToButtons(forwardTouchListener: View.OnTouchListener?, backTouchListener: View.OnTouchListener?,
-                                           leftTouchListener: View.OnTouchListener?, rightTouchListener: View.OnTouchListener?) {
+    private fun setActions(actionsArray: ArrayList<String>) {
 
-        binding.moveForward.setOnTouchListener(forwardTouchListener)
+        actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionsArray[0], null, actionsArray[2].toBoolean())
+        actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionsArray[1], null, actionsArray[2].toBoolean())
 
-        binding.moveBack.setOnTouchListener(backTouchListener)
+        actionBack.setAndSave(Move.BACK, Action.PRESS, actionsArray[3], null, actionsArray[5].toBoolean())
+        actionBack.setAndSave(Move.BACK, Action.RELEASE, actionsArray[4], null, actionsArray[5].toBoolean())
 
-        binding.turnLeft.setOnTouchListener(leftTouchListener)
+        actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionsArray[6], null, actionsArray[8].toBoolean())
+        actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionsArray[7], null, actionsArray[8].toBoolean())
 
-        binding.turnRight.setOnTouchListener(rightTouchListener)
+        actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionsArray[9], null, actionsArray[11].toBoolean())
+        actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionsArray[10], null, actionsArray[11].toBoolean())
 
-
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionsArray[12], null, actionsArray[15].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionsArray[13], null, actionsArray[15].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", actionsArray[14].toBoolean(), actionsArray[15].toBoolean())
     }
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -202,7 +208,22 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         return binding.root
     }
 
-    private fun setControlMode() {
+    /*
+    Widgets responses
+     */
+    private fun addTouchListenersToButtons(forwardTouchListener: View.OnTouchListener?, backTouchListener: View.OnTouchListener?,
+                                           leftTouchListener: View.OnTouchListener?, rightTouchListener: View.OnTouchListener?) {
+
+        binding.moveForward.setOnTouchListener(forwardTouchListener)
+
+        binding.moveBack.setOnTouchListener(backTouchListener)
+
+        binding.turnLeft.setOnTouchListener(leftTouchListener)
+
+        binding.turnRight.setOnTouchListener(rightTouchListener)
+    }
+
+    private fun setControlMode() { //Enable all widgets and set responses for they
 
         binding.moveForward.setOnLongClickListener(null)
         binding.moveBack.setOnLongClickListener(null)
@@ -244,25 +265,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         addTouchListenersToButtons(forwardTouchListener, backTouchListener, leftTouchListener, rightTouchListener)
     }
 
-    private fun setActions(actionsArray: ArrayList<String>) {
-
-        actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionsArray[0], null, actionsArray[2].toBoolean())
-        actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionsArray[1], null, actionsArray[2].toBoolean())
-
-        actionBack.setAndSave(Move.BACK, Action.PRESS, actionsArray[3], null, actionsArray[5].toBoolean())
-        actionBack.setAndSave(Move.BACK, Action.RELEASE, actionsArray[4], null, actionsArray[5].toBoolean())
-
-        actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionsArray[6], null, actionsArray[8].toBoolean())
-        actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionsArray[7], null, actionsArray[8].toBoolean())
-
-        actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionsArray[9], null, actionsArray[11].toBoolean())
-        actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionsArray[10], null, actionsArray[11].toBoolean())
-
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionsArray[12], null, actionsArray[15].toBoolean())
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionsArray[13], null, actionsArray[15].toBoolean())
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", actionsArray[14].toBoolean(), actionsArray[15].toBoolean())
-    }
-
+    //Response for widget click in edit mode or control mode
     private fun setClickActions() {
 
         binding.moveForward.setOnLongClickListener {
@@ -316,7 +319,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         binding.speedSeekBar.setOnSeekBarChangeListener(null)
     }
 
-
+    //Show this dialog when we want to edit some responses at widgets
     private fun View.showDialog(action: Move?, press: String, release: String, hasNewLine: Boolean): Boolean {
 
         showChangeButtonConfigDialog(activity, getString(R.string.change_button_config), action.toString(), true, getString(android.R.string.ok),
@@ -335,12 +338,14 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         return true
     }
 
+    //Set seek bar max value
     private fun SeekBar.setSeekBarMax(actionPress: String, actionRelease: String) {
         val deltaMaxMin = actionPress.toInt() - actionRelease.toInt()
         this.max = if (deltaMaxMin > 0) deltaMaxMin
         else actionPress.toInt()
     }
 
+    //Set actions at widgets and save then in shared preferences
     private fun actionsForWidgets(action: Move, actionPress: String, actionRelease: String, appendNewLine: Boolean) {
         when (action) {
             Move.FORWARD -> {
@@ -367,6 +372,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         }
     }
 
+    //Responses for BluetoothDirector notifications
     override fun update(state: MainActivity.Companion.BluetoothStates) {
 
     }
@@ -388,6 +394,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     }
 
 
+    //Object of this class represents single widget as button or seekbar
     private inner class WidgetConfig(private var pressAction: String = "1", private var releaseAction: String = "2",
                                      private var appendNewLine: Boolean = true, private var whenSend: Boolean? = false) {
 

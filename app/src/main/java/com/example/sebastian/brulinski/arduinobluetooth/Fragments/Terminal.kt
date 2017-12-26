@@ -18,26 +18,22 @@ import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerm
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
 
-    //Tags
+    //Tags and flags
     private val TAG = "Terminal"
+    private var appendNewLine = true
 
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
 
-    private lateinit var binding: FragmentTerminalBinding
+    private lateinit var binding: FragmentTerminalBinding//Binding
     private val sendText = StringBuilder()
-    //Flags
-    private var appendNewLine = true
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_terminal, container, false)
         setHasOptionsMenu(true)
 
+        //Change texts color at red when no devices connected
         if (!bluetoothActionsCallback.isConnectedToDevice())
             changeTextColors("#FF0000")
 
@@ -79,6 +75,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
         binding.terminalTextTextView.text = "$sendText"
     }
 
+    //Responses at notifications from BluetoothDirector
     override fun update(state: MainActivity.Companion.BluetoothStates) {
 
         if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
