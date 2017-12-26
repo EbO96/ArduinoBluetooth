@@ -76,7 +76,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
                 bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
 
             } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+                bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
             }
             return true
         }
@@ -110,7 +110,8 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         HAS_NEW_LINE,
         MIN,
         MAX,
-        SEND_WHEN_MOVED
+        SEND_WHEN_MOVED,
+        SEEK_ID
     }
 
     private val FPKEY = "${Move.FORWARD}-${Action.PRESS}"
@@ -129,6 +130,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     private val SEEK_MIN_KEY = "${Move.SEEKBAR}-${Action.MIN}"
     private val SEEK_HAS_KEY = "${Move.SEEKBAR}-${Action.HAS_NEW_LINE}"
     private val SEEK_WHEN_SEND = "${Move.SEEKBAR}-${Action.SEND_WHEN_MOVED}"
+    private val SEEK_ID = "${Move.SEEKBAR}-${Action.SEEK_ID}"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,6 +156,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         actions.add(sharedPref.getInt(SEEK_MAX_KEY, 255).toString())
         actions.add(sharedPref.getInt(SEEK_MIN_KEY, 0).toString())
         actions.add(sharedPref.getBoolean(SEEK_HAS_KEY, false).toString())
+        actions.add(sharedPref.getString(SEEK_ID, "."))
         actions.add(sharedPref.getBoolean(SEEK_WHEN_SEND, false).toString())
 
         //Set this config at widgets
@@ -162,21 +165,22 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     private fun setActions(actionsArray: ArrayList<String>) {
 
-        actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionsArray[0], null, actionsArray[2].toBoolean())
-        actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionsArray[1], null, actionsArray[2].toBoolean())
+        actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionsArray[0], null, null, actionsArray[2].toBoolean())
+        actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionsArray[1], null, null, actionsArray[2].toBoolean())
 
-        actionBack.setAndSave(Move.BACK, Action.PRESS, actionsArray[3], null, actionsArray[5].toBoolean())
-        actionBack.setAndSave(Move.BACK, Action.RELEASE, actionsArray[4], null, actionsArray[5].toBoolean())
+        actionBack.setAndSave(Move.BACK, Action.PRESS, actionsArray[3], null, null, actionsArray[5].toBoolean())
+        actionBack.setAndSave(Move.BACK, Action.RELEASE, actionsArray[4], null, null, actionsArray[5].toBoolean())
 
-        actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionsArray[6], null, actionsArray[8].toBoolean())
-        actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionsArray[7], null, actionsArray[8].toBoolean())
+        actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionsArray[6], null, null, actionsArray[8].toBoolean())
+        actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionsArray[7], null, null, actionsArray[8].toBoolean())
 
-        actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionsArray[9], null, actionsArray[11].toBoolean())
-        actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionsArray[10], null, actionsArray[11].toBoolean())
+        actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionsArray[9], null, null, actionsArray[11].toBoolean())
+        actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionsArray[10], null, null, actionsArray[11].toBoolean())
 
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionsArray[12], null, actionsArray[15].toBoolean())
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionsArray[13], null, actionsArray[15].toBoolean())
-        speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", actionsArray[14].toBoolean(), actionsArray[15].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionsArray[12], null, null, actionsArray[16].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionsArray[13], null, null, actionsArray[16].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", actionsArray[14].toBoolean(), null, actionsArray[16].toBoolean())
+        speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEEK_ID, "", null, actionsArray[15], actionsArray[16].toBoolean())
     }
 
 
@@ -200,7 +204,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
         binding.sendWhenMovedSwitch.setOnCheckedChangeListener { _, isChecked ->
             sendWhenMoved = isChecked
-            speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", sendWhenMoved, speedSeekBar.hasNewLine())
+            speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", sendWhenMoved, null, speedSeekBar.hasNewLine())
         }
 
         speedSeekBar
@@ -241,10 +245,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
             override fun onProgressChanged(seekBar: SeekBar, p1: Int, p2: Boolean) {
                 if (sendWhenMoved && bluetoothActionsCallback.isConnectedToDevice()) {
-                    var progress = seekBar.progress
-                    progress += speedSeekBar.release().toInt()
-
-                    bluetoothActionsCallback.writeToDevice(progress.toString().toByteArray())
+                    calculateProgressAndSend(seekBar.progress)
                 }
             }
 
@@ -254,10 +255,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 if (!sendWhenMoved && bluetoothActionsCallback.isConnectedToDevice()) {
-                    var progress = seekBar.progress
-                    progress += speedSeekBar.release().toInt()
-
-                    bluetoothActionsCallback.writeToDevice(progress.toString().toByteArray())
+                    calculateProgressAndSend(seekBar.progress)
                 }
             }
         })
@@ -265,23 +263,35 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         addTouchListenersToButtons(forwardTouchListener, backTouchListener, leftTouchListener, rightTouchListener)
     }
 
+    //Calculate speed from seekbar and send to device
+    private fun calculateProgressAndSend(progress: Int) {
+        var myProgress = progress
+        myProgress += speedSeekBar.release().toInt()
+
+        val toWrite = "${speedSeekBar.speedSeekBarId()}$myProgress"
+        val newLine = if (speedSeekBar.hasNewLine()) "$toWrite\n"
+        else toWrite
+
+        bluetoothActionsCallback.writeToDevice(newLine.toByteArray())
+    }
+
     //Response for widget click in edit mode or control mode
     private fun setClickActions() {
 
         binding.moveForward.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), hasNewLine = actionForward.hasNewLine())
+            binding.moveForward.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionForward.hasNewLine())
         }
 
         binding.moveBack.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), hasNewLine = actionBack.hasNewLine())
+            binding.moveForward.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionBack.hasNewLine())
         }
 
         binding.turnLeft.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), hasNewLine = actionLeft.hasNewLine())
+            binding.moveForward.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionLeft.hasNewLine())
         }
 
         binding.turnRight.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), hasNewLine = actionRight.hasNewLine())
+            binding.moveForward.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionRight.hasNewLine())
         }
 
         binding.moveForward.setOnClickListener {
@@ -310,7 +320,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
         binding.speedSeekBar.setOnTouchListener { _, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                binding.speedSeekBar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.hasNewLine())
+                binding.speedSeekBar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.speedSeekBarId(), speedSeekBar.hasNewLine())
 
             }
             true
@@ -320,14 +330,15 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     }
 
     //Show this dialog when we want to edit some responses at widgets
-    private fun View.showDialog(action: Move?, press: String, release: String, hasNewLine: Boolean): Boolean {
+    private fun View.showDialog(action: Move?, press: String, release: String, seekId: String?, hasNewLine: Boolean): Boolean {
 
         showChangeButtonConfigDialog(activity, getString(R.string.change_button_config), action.toString(), true, getString(android.R.string.ok),
-                getString(android.R.string.cancel), press, release, hasNewLine, this is SeekBar,
+                getString(android.R.string.cancel), press, release, seekId, hasNewLine, this is SeekBar,
 
-                { actionPress, actionRelease, appendNewLine ->
+                { actionPress, actionRelease, appendNewLine, seekBarId ->
+                    Log.d(TAG, seekBarId)
 
-                    actionsForWidgets(action!!, actionPress, actionRelease, appendNewLine)
+                    actionsForWidgets(action!!, actionPress, actionRelease, seekBarId, appendNewLine)
 
                     (this as? SeekBar)?.setSeekBarMax(actionPress, actionRelease)
                 },
@@ -346,28 +357,29 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     }
 
     //Set actions at widgets and save then in shared preferences
-    private fun actionsForWidgets(action: Move, actionPress: String, actionRelease: String, appendNewLine: Boolean) {
+    private fun actionsForWidgets(action: Move, actionPress: String, actionRelease: String, seekId: String?, appendNewLine: Boolean) {
         when (action) {
             Move.FORWARD -> {
-                actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionPress, null, appendNewLine)
-                actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionRelease, null, appendNewLine)
+                actionForward.setAndSave(Move.FORWARD, Action.PRESS, actionPress, null, null, appendNewLine)
+                actionForward.setAndSave(Move.FORWARD, Action.RELEASE, actionRelease, null, null, appendNewLine)
             }
             Move.BACK -> {
-                actionBack.setAndSave(Move.BACK, Action.PRESS, actionPress, null, appendNewLine)
-                actionBack.setAndSave(Move.BACK, Action.RELEASE, actionRelease, null, appendNewLine)
+                actionBack.setAndSave(Move.BACK, Action.PRESS, actionPress, null, null, appendNewLine)
+                actionBack.setAndSave(Move.BACK, Action.RELEASE, actionRelease, null, null, appendNewLine)
             }
             Move.LEFT -> {
-                actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionPress, null, appendNewLine)
-                actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionRelease, null, appendNewLine)
+                actionLeft.setAndSave(Move.LEFT, Action.PRESS, actionPress, null, null, appendNewLine)
+                actionLeft.setAndSave(Move.LEFT, Action.RELEASE, actionRelease, null, null, appendNewLine)
             }
             Move.RIGHT -> {
-                actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionPress, null, appendNewLine)
-                actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionRelease, null, appendNewLine)
+                actionRight.setAndSave(Move.RIGHT, Action.PRESS, actionPress, null, null, appendNewLine)
+                actionRight.setAndSave(Move.RIGHT, Action.RELEASE, actionRelease, null, null, appendNewLine)
             }
             Move.SEEKBAR -> {
-                speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionPress, null, appendNewLine)
-                speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionRelease, null, appendNewLine)
-                speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, actionRelease, sendWhenMoved, appendNewLine)
+                speedSeekBar.setAndSave(Move.SEEKBAR, Action.MAX, actionPress, null, null, appendNewLine)
+                speedSeekBar.setAndSave(Move.SEEKBAR, Action.MIN, actionRelease, null, null, appendNewLine)
+                speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, actionRelease, sendWhenMoved, null, appendNewLine)
+                speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEEK_ID, actionRelease, null, seekId, appendNewLine)
             }
         }
     }
@@ -396,9 +408,10 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     //Object of this class represents single widget as button or seekbar
     private inner class WidgetConfig(private var pressAction: String = "1", private var releaseAction: String = "2",
-                                     private var appendNewLine: Boolean = true, private var whenSend: Boolean? = false) {
+                                     private var appendNewLine: Boolean = true, private var whenSend: Boolean? = false,
+                                     private var seekBarId: String? = ".") {
 
-        fun setAndSave(move: Move, action: Action, text: String, whenSend: Boolean?, containNewLine: Boolean) {
+        fun setAndSave(move: Move, action: Action, text: String, whenSend: Boolean?, seekId: String?, containNewLine: Boolean) {
             var toSave = ""
 
             if (whenSend == null) {
@@ -412,15 +425,18 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
                 Action.MAX -> this.pressAction = toSave
                 Action.MIN -> this.releaseAction = toSave
                 Action.SEND_WHEN_MOVED -> this.whenSend = whenSend
+                Action.SEEK_ID -> this.seekBarId = seekId
                 VehicleControlFragment.Action.HAS_NEW_LINE -> TODO()
             }
 
             appendNewLine = containNewLine
 
-            if (move == Move.SEEKBAR && action != Action.SEND_WHEN_MOVED) {
+            if (move == Move.SEEKBAR && action != Action.SEND_WHEN_MOVED && action != Action.SEEK_ID) {
                 prefEditor.putInt("$move-$action", toSave.toInt())
             } else if (action == Action.SEND_WHEN_MOVED && whenSend != null)
                 prefEditor.putBoolean("$move-$action", whenSend)
+            else if (action == Action.SEEK_ID)
+                prefEditor.putString("$move-$action", seekId)
             else prefEditor.putString("$move-$action", toSave)
 
             prefEditor.putBoolean("$move-${Action.HAS_NEW_LINE}", containNewLine)
@@ -431,5 +447,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         fun release(): String = releaseAction
         fun hasNewLine(): Boolean = appendNewLine
         fun sendWhenItMoves(): Boolean = whenSend!!
+        fun speedSeekBarId(): String? = seekBarId!!
     }
 }

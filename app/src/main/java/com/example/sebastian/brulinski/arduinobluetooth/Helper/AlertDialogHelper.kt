@@ -27,29 +27,34 @@ fun showConnectingToDeviceAlert(activity: Activity, title: String?, message: Str
 }
 
 fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message: String?, cancelable: Boolean, posButton: String, negButton: String,
-                                     press: String, release: String, hasNewLine: Boolean, isSeekBar: Boolean,
-                                     clickedPos: (actionPress: String, actionRelease: String, appendNewLine: Boolean) -> T, clickedNeg: () -> T) {
+                                     press: String, release: String, seekId: String?, hasNewLine: Boolean, isSeekBar: Boolean,
+                                     clickedPos: (actionPress: String, actionRelease: String, appendNewLine: Boolean, seekBarId: String?) -> T,
+                                     clickedNeg: () -> T) {
 
     val mLayout = activity.layoutInflater.inflate(R.layout.change_button_config_dialog_layout, null)
 
     val builder = AlertDialog.Builder(activity)
-    builder.setTitle(title)
-    builder.setMessage(message)
+    builder.setTitle(null)
+    builder.setMessage(null)
     builder.setCancelable(cancelable)
     builder.setView(mLayout)
 
     val pressAction = mLayout.findViewById<EditText>(R.id.press_action_edit_text)
     val releaseAction = mLayout.findViewById<EditText>(R.id.release_action_edit_text)
     val appendNewLine = mLayout.findViewById<CheckBox>(R.id.append_new_line_check_box)
+    val seekBarId = mLayout.findViewById<EditText>(R.id.seekbar_id_edit_text)
 
     val pressInputLayout = mLayout.findViewById<TextInputLayout>(R.id.press_in_layout)
     val releaseInputLayout = mLayout.findViewById<TextInputLayout>(R.id.release_in_layout)
+    val seekBarIdInputLayout = mLayout.findViewById<TextInputLayout>(R.id.seekbar_id_layout)
 
     if (isSeekBar) {
         pressInputLayout.hint = activity.getString(R.string.maximum_value)
         releaseInputLayout.hint = activity.getString(R.string.minimum_value)
         pressAction.inputType = InputType.TYPE_CLASS_NUMBER
         releaseAction.inputType = InputType.TYPE_CLASS_NUMBER
+        seekBarIdInputLayout.visibility = View.VISIBLE
+        seekBarId.setText(seekId)
     }
 
     pressAction.setText(press)
@@ -57,7 +62,7 @@ fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message
     appendNewLine.isChecked = hasNewLine
 
     builder.setPositiveButton(posButton, { _, _ ->
-        clickedPos("${pressAction.text}", "${releaseAction.text}", appendNewLine.isChecked)
+        clickedPos("${pressAction.text}", "${releaseAction.text}", appendNewLine.isChecked, "${seekBarId.text}")
     })
 
     builder.setNegativeButton(negButton, { _, _ ->

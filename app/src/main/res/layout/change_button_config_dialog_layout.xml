@@ -1,44 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/press_in_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/press_action"
-        android:labelFor="@id/press_action_edit_text"
-        android:padding="4dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/press_action_edit_text"
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/press_in_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
-    </android.support.design.widget.TextInputLayout>
+            android:hint="@string/press_action"
+            android:labelFor="@id/press_action_edit_text"
+            android:padding="4dp">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/release_in_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/release_action"
-        android:labelFor="@id/release_action_edit_text"
-        android:padding="4dp">
+            <EditText
+                android:id="@+id/press_action_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/release_action_edit_text"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/release_in_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text" />
-    </android.support.design.widget.TextInputLayout>
+            android:hint="@string/release_action"
+            android:labelFor="@id/release_action_edit_text"
+            android:padding="4dp">
 
-    <CheckBox
-        android:id="@+id/append_new_line_check_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/append_new_line" />
+            <EditText
+                android:id="@+id/release_action_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </android.support.design.widget.TextInputLayout>
 
-</LinearLayout>
+        <CheckBox
+            android:id="@+id/append_new_line_check_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="@string/append_new_line" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/seekbar_id_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/char_id_of_this_seekbar_before_value"
+            android:labelFor="@id/seekbar_id_edit_text"
+            android:padding="4dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/seekbar_id_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+</ScrollView>
