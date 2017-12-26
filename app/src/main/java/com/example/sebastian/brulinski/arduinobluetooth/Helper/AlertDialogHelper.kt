@@ -1,35 +1,29 @@
 import android.app.ActionBar
 import android.app.Activity
-import android.content.Context
-import android.content.DialogInterface
 import android.support.design.widget.TextInputLayout
 import android.support.v7.app.AlertDialog
 import android.text.InputType
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.ProgressBar
+import android.widget.*
 import com.example.sebastian.brulinski.arduinobluetooth.R
 
-fun <T> showAlert(context: Context, title: String?, message: String?, cancelable: Boolean,
-                  posButton: String, negButton: String, layout: View?, clickedPos: () -> T, clickedNeg: () -> T) {
-    val builder = AlertDialog.Builder(context)
+fun showConnectingToDeviceAlert(activity: Activity, title: String?, message: String?, deviceName: String,
+                                    layout: Int): AlertDialog {
+
+    val mLayout = activity.layoutInflater.inflate(layout, null)
+    mLayout.findViewById<TextView>(R.id.target_device_name).text = deviceName
+
+    val builder = AlertDialog.Builder(activity)
     builder.setTitle(title)
     builder.setMessage(message)
-    builder.setCancelable(cancelable)
-    builder.setView(layout)
+    builder.setCancelable(true)
+    builder.setView(mLayout)
 
-    builder.setPositiveButton(posButton, DialogInterface.OnClickListener { _, _ ->
-        clickedPos()
-    })
+    val dialog = builder.create()
+    dialog.show()
 
-    builder.setNegativeButton(negButton, DialogInterface.OnClickListener { _, _ ->
-        clickedNeg()
-    })
-
-    builder.create().show()
+    return dialog
 }
 
 fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message: String?, cancelable: Boolean, posButton: String, negButton: String,
@@ -51,7 +45,7 @@ fun <T> showChangeButtonConfigDialog(activity: Activity, title: String?, message
     val pressInputLayout = mLayout.findViewById<TextInputLayout>(R.id.press_in_layout)
     val releaseInputLayout = mLayout.findViewById<TextInputLayout>(R.id.release_in_layout)
 
-    if(isSeekBar){
+    if (isSeekBar) {
         pressInputLayout.hint = activity.getString(R.string.maximum_value)
         releaseInputLayout.hint = activity.getString(R.string.minimum_value)
         pressAction.inputType = InputType.TYPE_CLASS_NUMBER

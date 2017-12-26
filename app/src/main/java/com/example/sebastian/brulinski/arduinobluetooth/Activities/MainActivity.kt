@@ -15,6 +15,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
@@ -27,6 +28,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import showConnectingToDeviceAlert
 
 class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothActionsInterface {
 
@@ -47,6 +49,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private val terminal = Terminal()
     private val vehicleControl = VehicleControlFragment()
     private var currentFragment: Fragment? = null
+
+    //Fragment dialogs
+    private var connectToDeviceDialog: AlertDialog? = null
 
     //Bluetooth
     private lateinit var myBluetooth: MyBluetooth
@@ -80,6 +85,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
             val msgData = msg?.data
             val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
             Snackbar.make(findViewById(R.id.main_container), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
+            connectToDeviceDialog?.dismiss()
+            connectToDeviceDialog = null
         }
     }
 
@@ -206,6 +213,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                         mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_CONNECTED)
                     }
                 }
+                connectToDeviceDialog?.dismiss()
+                connectToDeviceDialog = null
             }
         }
 
@@ -359,6 +368,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun connectToDevice(device: BluetoothDevice) {
         myBluetooth.connectToDevice(device)
+        connectToDeviceDialog = showConnectingToDeviceAlert(this, getString(R.string.connecting_to), null, device.name,
+                R.layout.connecting_to_device_dialog)
     }
 
     override fun disconnectFromDevice() {
