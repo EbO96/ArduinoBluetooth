@@ -3,7 +3,6 @@ package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -16,13 +15,12 @@ import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
-import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentVehicleControlBinding
+import kotlinx.android.synthetic.main.fragment_vehicle_control.*
 import org.jetbrains.anko.toast
 import showChangeButtonConfigDialog
 
 class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
-    private lateinit var binding: FragmentVehicleControlBinding
     private val TAG = "VehicleControlFragment"
 
     //ButtonActions
@@ -193,15 +191,19 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_vehicle_control, container, false)
+                              savedInstanceState: Bundle?): View? =
+            layoutInflater.inflate(R.layout.fragment_vehicle_control, container, false)
 
-        binding.speedSeekBar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        speed_seek_bar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
         sendWhenMoved = speedSeekBar.sendWhenItMoves()
-        binding.sendWhenMovedSwitch.isChecked = sendWhenMoved
+        send_when_moved_switch.isChecked = sendWhenMoved
         setControlMode()
 
-        binding.editModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+        edit_mode_switch.setOnCheckedChangeListener { _, isChecked ->
             if (!isChecked) {
                 setControlMode()
             } else {
@@ -210,14 +212,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
             }
         }
 
-        binding.sendWhenMovedSwitch.setOnCheckedChangeListener { _, isChecked ->
+        send_when_moved_switch.setOnCheckedChangeListener { _, isChecked ->
             sendWhenMoved = isChecked
             speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", sendWhenMoved, null, speedSeekBar.hasNewLine())
         }
 
         speedSeekBar
 
-        return binding.root
     }
 
     /*
@@ -226,30 +227,30 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     private fun addTouchListenersToButtons(forwardTouchListener: View.OnTouchListener?, backTouchListener: View.OnTouchListener?,
                                            leftTouchListener: View.OnTouchListener?, rightTouchListener: View.OnTouchListener?) {
 
-        binding.moveForward.setOnTouchListener(forwardTouchListener)
+        move_forward.setOnTouchListener(forwardTouchListener)
 
-        binding.moveBack.setOnTouchListener(backTouchListener)
+        move_back.setOnTouchListener(backTouchListener)
 
-        binding.turnLeft.setOnTouchListener(leftTouchListener)
+        turn_left.setOnTouchListener(leftTouchListener)
 
-        binding.turnRight.setOnTouchListener(rightTouchListener)
+        turn_right.setOnTouchListener(rightTouchListener)
     }
 
     private fun setControlMode() { //Enable all widgets and set responses for they
 
-        binding.moveForward.setOnLongClickListener(null)
-        binding.moveBack.setOnLongClickListener(null)
-        binding.turnLeft.setOnLongClickListener(null)
-        binding.turnRight.setOnLongClickListener(null)
+        move_forward.setOnLongClickListener(null)
+        move_back.setOnLongClickListener(null)
+        turn_left.setOnLongClickListener(null)
+        turn_right.setOnLongClickListener(null)
 
-        binding.turnRight.setOnClickListener(null)
-        binding.turnRight.setOnClickListener(null)
-        binding.turnRight.setOnClickListener(null)
-        binding.turnRight.setOnClickListener(null)
+        turn_right.setOnClickListener(null)
+        turn_right.setOnClickListener(null)
+        turn_right.setOnClickListener(null)
+        turn_right.setOnClickListener(null)
 
-        binding.speedSeekBar.setOnTouchListener(null)
+        speed_seek_bar.setOnTouchListener(null)
 
-        binding.speedSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        speed_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
             override fun onProgressChanged(seekBar: SeekBar, p1: Int, p2: Boolean) {
                 if (sendWhenMoved && bluetoothActionsCallback.isConnectedToDevice()) {
@@ -286,47 +287,47 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Response for widget click in edit mode or control mode
     private fun setClickActions() {
 
-        binding.moveForward.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionForward.hasNewLine())
+        move_forward.setOnLongClickListener {
+            move_forward.showDialog(action = Move.FORWARD, press = actionForward.press(), release = actionForward.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionForward.hasNewLine())
         }
 
-        binding.moveBack.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionBack.hasNewLine())
+        move_back.setOnLongClickListener {
+            move_forward.showDialog(action = Move.BACK, press = actionBack.press(), release = actionBack.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionBack.hasNewLine())
         }
 
-        binding.turnLeft.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionLeft.hasNewLine())
+        turn_left.setOnLongClickListener {
+            move_forward.showDialog(action = Move.LEFT, press = actionLeft.press(), release = actionLeft.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionLeft.hasNewLine())
         }
 
-        binding.turnRight.setOnLongClickListener {
-            binding.moveForward.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionRight.hasNewLine())
+        turn_right.setOnLongClickListener {
+            move_forward.showDialog(action = Move.RIGHT, press = actionRight.press(), release = actionRight.release(), seekId = speedSeekBar.speedSeekBarId(), hasNewLine = actionRight.hasNewLine())
         }
 
-        binding.moveForward.setOnClickListener {
+        move_forward.setOnClickListener {
             activity.toast("${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}")
         }
 
-        binding.moveBack.setOnClickListener {
+        move_back.setOnClickListener {
             activity.toast("${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}")
         }
 
-        binding.turnLeft.setOnClickListener {
+        turn_left.setOnClickListener {
             activity.toast("${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}")
         }
 
-        binding.turnRight.setOnClickListener {
+        turn_right.setOnClickListener {
             activity.toast("${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}")
         }
 
-        binding.speedSeekBar.setOnTouchListener { _, motionEvent ->
+        speed_seek_bar.setOnTouchListener { _, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                binding.speedSeekBar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.speedSeekBarId(), speedSeekBar.hasNewLine())
+                speed_seek_bar.showDialog(Move.SEEKBAR, speedSeekBar.press(), speedSeekBar.release(), speedSeekBar.speedSeekBarId(), speedSeekBar.hasNewLine())
 
             }
             true
         }
 
-        binding.speedSeekBar.setOnSeekBarChangeListener(null)
+        speed_seek_bar.setOnSeekBarChangeListener(null)
     }
 
     //Show this dialog when we want to edit some responses at widgets

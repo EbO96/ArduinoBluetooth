@@ -1,7 +1,6 @@
 package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
 import android.content.Context
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,7 +13,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
-import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentTerminalBinding
+import kotlinx.android.synthetic.main.fragment_terminal.*
 
 class Terminal : Fragment(), BluetoothStateObserversInterface {
 
@@ -25,12 +24,16 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
 
-    private lateinit var binding: FragmentTerminalBinding//Binding
     private val sendText = StringBuilder()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_terminal, container, false)
+                              savedInstanceState: Bundle?): View? =
+            layoutInflater.inflate(R.layout.fragment_terminal, container, false)
+
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setHasOptionsMenu(true)
 
         //Change texts color at red when no devices connected
@@ -38,7 +41,7 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
             changeTextColors("#FF0000")
 
         //Edit text ime options
-        binding.terminalEditText.setOnEditorActionListener { _, actionId, _ ->
+        terminal_edit_text.setOnEditorActionListener { _, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_SEND -> {
                     sendMessage()
@@ -47,32 +50,30 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
             true
         }
 
-        binding.sendMessageToDevice.setOnClickListener {
+        send_message_to_device.setOnClickListener {
             sendMessage()
         }
 
-        binding.clearMessage.setOnClickListener {
-            binding.terminalEditText.setText("")
+        clear_message.setOnClickListener {
+            terminal_edit_text.setText("")
         }
 
-        binding.clearMessage.setOnLongClickListener {
-            binding.terminalTextTextView.text = null
+        clear_message.setOnLongClickListener {
+            terminal_text_text_view.text = null
             sendText.delete(0, sendText.length)
             true
         }
-
-        return binding.root
     }
 
     private fun sendMessage() {
-        var text = "${binding.terminalEditText.text}"
+        var text = "${terminal_edit_text.text}"
 
         if (appendNewLine) text += "\n"
 
         bluetoothActionsCallback.writeToDevice(text.toByteArray())
 
         sendText.append(text)
-        binding.terminalTextTextView.text = "$sendText"
+        terminal_text_text_view.text = "$sendText"
     }
 
     //Responses at notifications from BluetoothDirector
@@ -87,11 +88,11 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     }
 
     private fun changeTextColors(hexColor: String) {
-        binding.terminalTextTextView.setTextColor(Color.parseColor(hexColor))
-        binding.terminalEditText.setTextColor(Color.parseColor(hexColor))
-        binding.terminalEditText.setHintTextColor(Color.parseColor(hexColor))
-        binding.sendMessageToDevice.setColorFilter(Color.parseColor(hexColor))
-        binding.clearMessage.setColorFilter(Color.parseColor(hexColor))
+        terminal_text_text_view.setTextColor(Color.parseColor(hexColor))
+        terminal_edit_text.setTextColor(Color.parseColor(hexColor))
+        terminal_edit_text.setHintTextColor(Color.parseColor(hexColor))
+        send_message_to_device.setColorFilter(Color.parseColor(hexColor))
+        clear_message.setColorFilter(Color.parseColor(hexColor))
     }
 
     override fun onAttach(context: Context?) {

@@ -1,109 +1,107 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout android:background="@color/colorPrimary"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <Switch
+        android:checked="false"
+        android:id="@+id/edit_mode_switch"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_width="120dp"
+        android:text="@string/edit_mode"
+        android:textColor="#FFFFFF" />
+
+    <Switch
+        android:checked="false"
+        android:id="@+id/accelerometer_mode_switch"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/edit_mode_switch"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_width="135dp"
+        android:text="@string/accelerometer"
+        android:textColor="#FFFFFF" />
+
+    <LinearLayout
+        android:id="@+id/up_down_layout"
+        android:layout_alignParentStart="true"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:clickable="true"
-        android:focusable="true"
-        tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment">
-
-        <Switch
-            android:id="@+id/edit_mode_switch"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="6dp"
-            android:checked="false"
-            android:text="@string/edit_mode"
-            android:textColor="#FFFFFF" />
-
-        <Switch
-            android:id="@+id/accelerometer_mode_switch"
-            android:layout_width="135dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/edit_mode_switch"
-            android:layout_margin="16dp"
-            android:checked="false"
-            android:text="@string/accelerometer"
-            android:textColor="#FFFFFF" />
-
-        <LinearLayout
-            android:id="@+id/up_down_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:orientation="vertical">
-
-            <ImageButton
-                android:id="@+id/move_forward"
-                android:layout_width="144dp"
-                android:layout_height="144dp"
-                android:layout_margin="16dp"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:layout_weight="1"
-                android:background="#FFFFFF"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_keyboard_arrow_up_black_48dp" />
-
-            <ImageButton
-                android:id="@+id/move_back"
-                android:layout_width="144dp"
-                android:layout_height="144dp"
-                android:layout_margin="16dp"
-                android:layout_weight="1"
-                android:background="#FFFFFF"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_keyboard_arrow_down_black_48dp" />
-
-        </LinearLayout>
+        android:layout_width="wrap_content"
+        android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/turn_left"
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            android:layout_centerVertical="true"
-            android:layout_margin="16dp"
-            android:layout_toStartOf="@id/turn_right"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_left_black_48dp" />
+            android:id="@+id/move_forward"
+            android:layout_height="144dp"
+            android:layout_margin="16dp"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_weight="1"
+            android:layout_width="144dp"
+            android:src="@drawable/ic_keyboard_arrow_up_black_48dp" />
 
         <ImageButton
-            android:id="@+id/turn_right"
-            android:layout_width="144dp"
-            android:layout_height="144dp"
-            android:layout_alignTop="@+id/turn_left"
-            android:layout_marginEnd="14dp"
-            android:layout_alignParentEnd="true"
             android:background="#FFFFFF"
             android:contentDescription="@null"
-            android:src="@drawable/ic_keyboard_arrow_right_black_48dp" />
+            android:id="@+id/move_back"
+            android:layout_height="144dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:layout_width="144dp"
+            android:src="@drawable/ic_keyboard_arrow_down_black_48dp" />
 
-        <Switch
-            android:id="@+id/send_when_moved_switch"
-            android:text="@string/send_when_it_moves"
-            android:textColor="#FFFFFF"
-            android:layout_above="@id/speed_seek_bar"
-            android:layout_alignParentEnd="true"
-            android:layout_width="170dp"
-            android:layout_marginEnd="16dp"
-            android:layout_height="wrap_content" />
+    </LinearLayout>
 
-        <SeekBar
-            android:id="@+id/speed_seek_bar"
-            android:layout_alignParentBottom="true"
-            android:layout_width="match_parent"
-            android:layout_margin="8dp"
-            android:padding="4dp"
-            android:min="0"
-            android:max="255"
-            android:layout_toEndOf="@id/up_down_layout"
-            android:layout_height="wrap_content" />
+    <ImageButton
+        android:background="#FFFFFF"
+        android:contentDescription="@null"
+        android:id="@+id/turn_left"
+        android:layout_centerVertical="true"
+        android:layout_height="144dp"
+        android:layout_margin="16dp"
+        android:layout_toStartOf="@id/turn_right"
+        android:layout_width="144dp"
+        android:src="@drawable/ic_keyboard_arrow_left_black_48dp" />
 
-    </RelativeLayout>
-</layout>
+    <ImageButton
+        android:background="#FFFFFF"
+        android:contentDescription="@null"
+        android:id="@+id/turn_right"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/turn_left"
+        android:layout_height="144dp"
+        android:layout_marginEnd="14dp"
+        android:layout_width="144dp"
+        android:src="@drawable/ic_keyboard_arrow_right_black_48dp" />
+
+    <Switch
+        android:id="@+id/send_when_moved_switch"
+        android:layout_above="@id/speed_seek_bar"
+        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_width="170dp"
+        android:text="@string/send_when_it_moves"
+        android:textColor="#FFFFFF" />
+
+    <SeekBar
+        android:id="@+id/speed_seek_bar"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_toEndOf="@id/up_down_layout"
+        android:layout_width="match_parent"
+        android:max="255"
+        android:min="0"
+        android:padding="4dp" />
+
+</RelativeLayout>
+

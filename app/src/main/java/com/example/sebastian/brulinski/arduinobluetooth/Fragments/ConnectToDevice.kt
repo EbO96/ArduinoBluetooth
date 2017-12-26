@@ -2,7 +2,6 @@ package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 
 import android.bluetooth.BluetoothDevice
 import android.content.Context
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.Snackbar
@@ -20,12 +19,12 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStat
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
-import com.example.sebastian.brulinski.arduinobluetooth.databinding.FragmentConnectToDeviceBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.fragment_connect_to_device.*
 import org.jetbrains.anko.toast
 import showLoginDialog
 
@@ -33,9 +32,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
     //Tags
     private val TAG = "ConnectToDevice"
-    //Binding
-    private lateinit var binding: FragmentConnectToDeviceBinding
-
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
     private lateinit var setProperFragmentCallback: SetProperFragmentInterface
@@ -54,9 +50,12 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
     //START
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_to_device, container, false)
+                              savedInstanceState: Bundle?): View? =
+            layoutInflater.inflate(R.layout.fragment_connect_to_device, container, false)
 
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)//This fragment has own options menu
 
@@ -65,12 +64,12 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
         setProperFragmentCallback = activity as SetProperFragmentInterface //Init interface used to changing fragments in container
 
-        binding.terminalButton.setOnClickListener {
+        terminal_button.setOnClickListener {
             setProperFragmentCallback.setTerminalFragment()
         }
 
         //On/Off control from Website
-        binding.controlFromWebSwitch.setOnCheckedChangeListener { compoundButton, checked ->
+        control_from_web_switch.setOnCheckedChangeListener { compoundButton, checked ->
             if (checked) {
                 if (checkAlreadyLoggedIn()) {
 
@@ -85,7 +84,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             if (checkAlreadyLoggedIn()) {
                 if (bluetoothActionsCallback.isConnectedToDevice()) {
                     if (checked) {
-                        binding.linkTextView.visibility = View.VISIBLE
+                        link_text_view.visibility = View.VISIBLE
                         webCommandsEventListener = webCommandsReference.addValueEventListener(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot?) {
                                 //When user are logged then we can send to device all incoming messages from web
@@ -97,7 +96,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
                             }
                         })
                     } else {
-                        binding.linkTextView.visibility = View.INVISIBLE
+                        link_text_view.visibility = View.INVISIBLE
                         webCommandsReference.removeEventListener(webCommandsEventListener)
                     }
                 } else {
@@ -116,16 +115,15 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         /**
          *Set proper fragment
          */
-        binding.vehicleControlButton.setOnClickListener {
+        vehicle_control_button.setOnClickListener {
             setProperFragmentCallback.setVehicleControlFragment()
         }
 
-        binding.cancelDiscoveringButton.setOnClickListener {
+        cancel_discovering_button.setOnClickListener {
             bluetoothActionsCallback.stopDiscoveringDevices()
-            binding.discoverDevicesLayout.visibility = View.GONE
+            discover_devices_layout.visibility = View.GONE
         }
 
-        return binding.root
     }
 
     private fun loginOrCreateAccount(email: String, password: String, dialog: AlertDialog) {
@@ -156,8 +154,8 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     private fun setDevicesRecycler() { //Init recycler where all found and paired devices are displayed
         val layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         val itemDecorator = DividerItemDecoration(activity, layoutManager.orientation)
-        binding.devicesRecycler.addItemDecoration(itemDecorator)
-        binding.devicesRecycler.layoutManager = layoutManager
+        devices_recycler.addItemDecoration(itemDecorator)
+        devices_recycler.layoutManager = layoutManager
 
         //This listener responses at click at devices list
         val clickListener = View.OnClickListener { view ->
@@ -165,7 +163,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         }
         //Set devices adapter
         devicesAdapter = DevicesAdapter(bluetoothActionsCallback.getMyBluetoothDevices(), activity, clickListener)
-        binding.devicesRecycler.adapter = devicesAdapter
+        devices_recycler.adapter = devicesAdapter
     }
 
     private fun getDeviceAndConnect(view: View?, btDevice: BluetoothDevice?) { //Connect to selected device
@@ -212,7 +210,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_FOUND) {
             devicesAdapter.notifyDataSetChanged()
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_BT_ON) {
-            if (binding.devicesRecycler.adapter != null) {
+            if (devices_recycler.adapter != null) {
                 bluetoothActionsCallback.getMyBluetoothDevices()
                 devicesAdapter.notifyDataSetChanged()
             } else setDevicesRecycler()
@@ -225,13 +223,13 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         } catch (e: RuntimeException) {
             e.printStackTrace()
         }
-        binding.controlFromWebSwitch.isChecked = false
-        binding.linkTextView.visibility = View.INVISIBLE
+        control_from_web_switch.isChecked = false
+        link_text_view.visibility = View.INVISIBLE
     }
 
     private fun showDisconnectMessage() {
         val deviceName = connectedDeviceView?.findViewById<TextView>(R.id.device_name)?.text.toString()
-        Snackbar.make(binding.root, "${getString(R.string.disconnected_from_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(ConnectToDeviceRootView, "${getString(R.string.disconnected_from_message)}: $deviceName", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -244,7 +242,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.discover_devices -> {
-                val view = binding.discoverDevicesLayout
+                val view = discover_devices_layout
                 if (view.visibility != View.VISIBLE) {
                     bluetoothActionsCallback.startDiscoveringDevices()
                     view.visibility = View.VISIBLE
@@ -252,7 +250,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             }
             R.id.logout -> {
                 FirebaseAuth.getInstance().signOut()
-                binding.controlFromWebSwitch.isChecked = false
+                control_from_web_switch.isChecked = false
                 checkAlreadyLoggedIn()
             }
         }

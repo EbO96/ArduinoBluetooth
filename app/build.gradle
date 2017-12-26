@@ -20,9 +20,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    dataBinding {
-        enabled = true
-    }
 }
 
 dependencies {
@@ -37,15 +34,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    kapt "com.android.databinding:compiler:3.1.0-alpha05"
     compile "org.jetbrains.anko:anko-commons:0.10.2"
 }
-
-kapt {
-    generateStubs = true //Binding
-}
-
-
-
 
 apply plugin: 'com.google.gms.google-services'
