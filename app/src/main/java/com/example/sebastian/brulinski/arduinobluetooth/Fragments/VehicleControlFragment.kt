@@ -31,8 +31,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     //Accelerometer
     private lateinit var mSensorManager: SensorManager
     private lateinit var mSensor: Sensor
-    private var lastMove = ""
-    private var lastUpdate = 0L
 
     //ButtonActions
     private val actionForward by lazy { WidgetConfig() }
@@ -234,7 +232,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
 
         accelerometerModeSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                lastUpdate = System.currentTimeMillis()
                 mSensorManager.registerListener(this@VehicleControlFragment, mSensor,
                         SensorManager.SENSOR_DELAY_NORMAL)
             } else mSensorManager.unregisterListener(this)
@@ -252,9 +249,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         if (mySensor?.type == Sensor.TYPE_ACCELEROMETER) {
             val x = sensorEvent.values[0]
             val y = sensorEvent.values[1]
-            val z = sensorEvent.values[2]
-
-            val currentTime = System.currentTimeMillis()
 
             //Forward or Back
             x.sendMoveDirectionToVehicle("b", { it > 5 && (y < 3 && y > -3) })
@@ -265,25 +259,14 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             y.sendMoveDirectionToVehicle("s", { it < 3 && it > -3 && (x < 3 && x > -3) })
             y.sendMoveDirectionToVehicle("r", { it > 5 && (x < 3 && x > -3) })
 
-            lastUpdate = currentTime
-
-
-//            Log.d(TAG, "x=$x\ny=$y\nz=$z")
-//            Log.d(TAG, "_________________")
-
         }
     }
 
 
     private fun Float.sendMoveDirectionToVehicle(toWrite: String, condition: (Float) -> Boolean) {
-        if (condition(this)) {
-            Log.d(TAG, toWrite)
-            lastMove = toWrite
+        if (condition(this) && bluetoothActionsCallback.isConnectedToDevice()) {
             bluetoothActionsCallback.writeToDevice(toWrite.toByteArray())
             return
-        } else {
-            Log.d(TAG, "s")
-            //bluetoothActionsCallback.writeToDevice("s".toByteArray())
         }
     }
 
