@@ -31,6 +31,10 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     //Accelerometer
     private lateinit var mSensorManager: SensorManager
     private lateinit var mSensor: Sensor
+    private val accelerometerManager by lazy {
+        ManageAccelerometerData()
+    }
+    private var lastMove: String? = null
 
     //ButtonActions
     private val actionForward by lazy { WidgetConfig() }
@@ -250,15 +254,83 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             val x = sensorEvent.values[0]
             val y = sensorEvent.values[1]
 
-            //Forward or Back
-            x.sendMoveDirectionToVehicle("b", { it > 5 && (y < 3 && y > -3) })
-            x.sendMoveDirectionToVehicle("s", { it < 3 && it > -3 && (y < 3 && y > -3) })
-            x.sendMoveDirectionToVehicle("f", { it < -5 && (y < 3 && y > -3) })
-            //Left or Right;
-            y.sendMoveDirectionToVehicle("l", { it < -5 && (x < 3 && x > -3) })
-            y.sendMoveDirectionToVehicle("s", { it < 3 && it > -3 && (x < 3 && x > -3) })
-            y.sendMoveDirectionToVehicle("r", { it > 5 && (x < 3 && x > -3) })
+            //Check direction and send command to vehicle
+            accelerometerManager.sendToVehicle(
+                    {
+                        accelerometerManager.checkMove(Direction.X, x, y, { accelerometerManager.checkStopAction(x, y) })
+                    }
+                    ,
+                    {
+                        accelerometerManager.checkMove(Direction.Y, y, x, { accelerometerManager.checkStopAction(x, y) })
+                    })
 
+        }
+    }
+
+    private enum class Direction {
+        X, Y
+    }
+
+    //Class to manage accelerometer data
+    private inner class ManageAccelerometerData {
+
+        private fun Float.checkStopXorY(): Boolean = this in -3..3
+
+        fun checkStopAction(x: Float, y: Float): Boolean = x.checkStopXorY() && y.checkStopXorY()//When X and Y is between -3 and 3
+
+        fun checkMove(direction: Direction, value1: Float, value2: Float, checkStopFunction: () -> Boolean): String? {
+
+            if (!checkStopFunction()) {
+                return when {
+                    value1 < -5 && value2.checkStopXorY() -> when (direction) {
+                        Direction.X -> {
+                            "f"
+                        }
+                        Direction.Y -> {
+                            "l"
+                        }
+                    }
+                    value1 > 5 && value2.checkStopXorY() -> when (direction) {
+                        Direction.X -> {
+                            "b"
+                        }
+                        Direction.Y -> {
+                            "r"
+                        }
+                    }
+                    else -> {
+                        null
+                    }
+                }
+            }
+            return "s"
+        }
+
+        fun sendToVehicle(checkForX: () -> String?, checkForY: () -> String?) {
+            val forX = checkForX()
+            val forY = checkForY()
+
+            var valueToSent: String? = null
+
+            if (forX == forY && forX != null) { //When x and y value is STOP then send only once
+                valueToSent = forX
+            } else { //Send X or Y values
+                //Send x data
+                if (forX != null) {
+                    valueToSent = forX
+                } else if (forY != null) {
+                    valueToSent = forY
+                }
+            }
+
+            //Send only when value is different of previous value
+            if (valueToSent != null) {
+                if(lastMove != valueToSent){
+                    Log.d(TAG, "value to send $valueToSent")
+                    bluetoothActionsCallback.writeToDevice(valueToSent.toByteArray())
+                }
+                lastMove = valueToSent
+            }
         }
     }
 
@@ -459,6 +531,17 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (accelerometerModeSwitch.isChecked)
+            mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mSensorManager.unregisterListener(this)
+    }
+
 
     //Object of this class represents single widget as button or seekbar
     private inner class WidgetConfig(private var pressAction: String = "1", private var releaseAction: String = "2",
@@ -502,16 +585,5 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         fun hasNewLine(): Boolean = appendNewLine
         fun sendWhenItMoves(): Boolean = whenSend!!
         fun speedSeekBarId(): String? = seekBarId!!
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (accelerometerModeSwitch.isChecked)
-            mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mSensorManager.unregisterListener(this)
     }
 }

@@ -156,7 +156,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//Check permission whether phone running on Marshmallow or above
-            //TODO fix this code later
             /*
         If app hasn't location permissions, show message and finish app
          */
