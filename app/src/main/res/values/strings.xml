@@ -42,7 +42,7 @@
     <string name="edit_mode">Edit mode</string>
     <string name="maximum_value">Maximum value</string>
     <string name="minimum_value">Minimum value</string>
-    <string name="send_when_it_moves">Send when it moves</string>
+    <string name="send_when_it_moves">Send when speed slider moves</string>
     <string name="connecting_to">Connecting to...</string>
     <string name="id">ID</string>
     <string name="char_id_of_this_seekbar_before_value">char ID of this SeekBar before value</string>

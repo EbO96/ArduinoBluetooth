@@ -1,106 +1,106 @@
-<RelativeLayout android:background="@color/colorPrimary"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:clickable="true"
     android:focusable="true"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment">
 
     <Switch
-        android:checked="false"
         android:id="@+id/editModeSwitch"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="6dp"
-        android:layout_width="120dp"
+        android:checked="false"
         android:text="@string/edit_mode"
         android:textColor="#FFFFFF" />
 
     <Switch
-        android:checked="false"
         android:id="@+id/accelerometerModeSwitch"
+        android:layout_width="135dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/editModeSwitch"
-        android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:layout_width="135dp"
+        android:checked="false"
         android:text="@string/accelerometer"
         android:textColor="#FFFFFF" />
 
     <LinearLayout
         android:id="@+id/forwardAndBackButtonsRootLayout"
-        android:layout_alignParentStart="true"
-        android:layout_height="match_parent"
         android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
         android:orientation="vertical">
 
         <ImageButton
-            android:background="#FFFFFF"
-            android:contentDescription="@null"
             android:id="@+id/moveForwardImageButton"
+            android:layout_width="144dp"
             android:layout_height="144dp"
             android:layout_margin="16dp"
             android:layout_marginTop="?attr/actionBarSize"
             android:layout_weight="1"
-            android:layout_width="144dp"
+            android:background="#FFFFFF"
+            android:contentDescription="@null"
             android:src="@drawable/ic_keyboard_arrow_up_black_48dp" />
 
         <ImageButton
-            android:background="#FFFFFF"
-            android:contentDescription="@null"
             android:id="@+id/moveBackImageButton"
+            android:layout_width="144dp"
             android:layout_height="144dp"
             android:layout_margin="16dp"
             android:layout_weight="1"
-            android:layout_width="144dp"
+            android:background="#FFFFFF"
+            android:contentDescription="@null"
             android:src="@drawable/ic_keyboard_arrow_down_black_48dp" />
 
     </LinearLayout>
 
     <ImageButton
-        android:background="#FFFFFF"
-        android:contentDescription="@null"
         android:id="@+id/turnLeftImageButton"
-        android:layout_centerVertical="true"
+        android:layout_width="144dp"
         android:layout_height="144dp"
+        android:layout_centerVertical="true"
         android:layout_margin="16dp"
         android:layout_toStartOf="@id/turnRightImageButton"
-        android:layout_width="144dp"
+        android:background="#FFFFFF"
+        android:contentDescription="@null"
         android:src="@drawable/ic_keyboard_arrow_left_black_48dp" />
 
     <ImageButton
-        android:background="#FFFFFF"
-        android:contentDescription="@null"
         android:id="@+id/turnRightImageButton"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/turnLeftImageButton"
-        android:layout_height="144dp"
         android:layout_marginEnd="14dp"
-        android:layout_width="144dp"
+        android:background="#FFFFFF"
+        android:contentDescription="@null"
         android:src="@drawable/ic_keyboard_arrow_right_black_48dp" />
 
     <Switch
         android:id="@+id/sendWhenItMovesSwitch"
-        android:layout_above="@id/vehicleSpeedSeekBar"
-        android:layout_alignParentEnd="true"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_toStartOf="@id/editModeSwitch"
         android:text="@string/send_when_it_moves"
         android:textColor="#FFFFFF" />
 
     <SeekBar
         android:id="@+id/vehicleSpeedSeekBar"
-        android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_toEndOf="@id/forwardAndBackButtonsRootLayout"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/turnLeftImageButton"
+        android:layout_marginTop="2dp"
+        android:layout_toEndOf="@id/forwardAndBackButtonsRootLayout"
         android:max="255"
-        android:min="0"
         android:padding="4dp" />
 
 </RelativeLayout>

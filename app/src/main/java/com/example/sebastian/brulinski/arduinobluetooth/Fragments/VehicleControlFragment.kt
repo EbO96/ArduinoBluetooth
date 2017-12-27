@@ -3,6 +3,10 @@ package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -18,10 +22,17 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 import kotlinx.android.synthetic.main.fragment_vehicle_control.*
 import org.jetbrains.anko.toast
 import showChangeButtonConfigDialog
+import java.util.*
 
-class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
+class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, SensorEventListener {
 
     private val TAG = "VehicleControlFragment"
+
+    //Accelerometer
+    private lateinit var mSensorManager: SensorManager
+    private lateinit var mSensor: Sensor
+    private var lastMove = ""
+    private var lastUpdate = 0L
 
     //ButtonActions
     private val actionForward by lazy { WidgetConfig() }
@@ -44,11 +55,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Touch listeners
     private val forwardTouchListener by lazy {
         View.OnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
+            if (!accelerometerModeSwitch.isChecked) {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionForward.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionForward.press().toByteArray())
+                }
             }
             true
         }
@@ -57,11 +70,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Touch listeners
     private val backTouchListener by lazy {
         View.OnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
+            if (!accelerometerModeSwitch.isChecked) {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionBack.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionBack.press().toByteArray())
+                }
             }
             true
         }
@@ -70,11 +85,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Touch listeners
     private val leftTouchListener by lazy {
         View.OnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
+            if (!accelerometerModeSwitch.isChecked) {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionLeft.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionLeft.press().toByteArray())
+                }
             }
             true
         }
@@ -83,11 +100,13 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
     //Touch listeners
     private val rightTouchListener by lazy {
         View.OnTouchListener { _, motionEvent ->
-            if (motionEvent.action == MotionEvent.ACTION_UP) {
-                bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
+            if (!accelerometerModeSwitch.isChecked) {
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    bluetoothActionsCallback.writeToDevice(actionRight.release().toByteArray())
 
-            } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+                } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    bluetoothActionsCallback.writeToDevice(actionRight.press().toByteArray())
+                }
             }
             true
         }
@@ -209,8 +228,63 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
             speedSeekBar.setAndSave(Move.SEEKBAR, Action.SEND_WHEN_MOVED, "", sendWhenMoved, null, speedSeekBar.hasNewLine())
         }
 
-        speedSeekBar
+        mSensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
+
+        accelerometerModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                lastUpdate = System.currentTimeMillis()
+                mSensorManager.registerListener(this@VehicleControlFragment, mSensor,
+                        SensorManager.SENSOR_DELAY_NORMAL)
+            } else mSensorManager.unregisterListener(this)
+        }
+
+    }
+
+    //Accelerometer listeners
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    override fun onSensorChanged(sensorEvent: SensorEvent?) {
+        val mySensor = sensorEvent?.sensor
+
+        if (mySensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val x = sensorEvent.values[0]
+            val y = sensorEvent.values[1]
+            val z = sensorEvent.values[2]
+
+            val currentTime = System.currentTimeMillis()
+
+            //Forward or Back
+            x.sendMoveDirectionToVehicle("b", { it > 5 && (y < 3 && y > -3) })
+            x.sendMoveDirectionToVehicle("s", { it < 3 && it > -3 && (y < 3 && y > -3) })
+            x.sendMoveDirectionToVehicle("f", { it < -5 && (y < 3 && y > -3) })
+            //Left or Right;
+            y.sendMoveDirectionToVehicle("l", { it < -5 && (x < 3 && x > -3) })
+            y.sendMoveDirectionToVehicle("s", { it < 3 && it > -3 && (x < 3 && x > -3) })
+            y.sendMoveDirectionToVehicle("r", { it > 5 && (x < 3 && x > -3) })
+
+            lastUpdate = currentTime
+
+
+//            Log.d(TAG, "x=$x\ny=$y\nz=$z")
+//            Log.d(TAG, "_________________")
+
+        }
+    }
+
+
+    private fun Float.sendMoveDirectionToVehicle(toWrite: String, condition: (Float) -> Boolean) {
+        if (condition(this)) {
+            Log.d(TAG, toWrite)
+            lastMove = toWrite
+            bluetoothActionsCallback.writeToDevice(toWrite.toByteArray())
+            return
+        } else {
+            Log.d(TAG, "s")
+            //bluetoothActionsCallback.writeToDevice("s".toByteArray())
+        }
     }
 
     /*
@@ -396,6 +470,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mSensorManager.unregisterListener(this)
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         (activity as MainActivity).supportActionBar?.show()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
@@ -444,5 +519,16 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface {
         fun hasNewLine(): Boolean = appendNewLine
         fun sendWhenItMoves(): Boolean = whenSend!!
         fun speedSeekBarId(): String? = seekBarId!!
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (accelerometerModeSwitch.isChecked)
+            mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mSensorManager.unregisterListener(this)
     }
 }

@@ -162,7 +162,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
          */
             if (permissionCheck != PackageManager.PERMISSION_GRANTED &&
                     !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                Log.d(TAG, "permissions not granted")
                 toast("Grand location permissions, because bluetooth devices can share fine location")
                 finish()
             }
