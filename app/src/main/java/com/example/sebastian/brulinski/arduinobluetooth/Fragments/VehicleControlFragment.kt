@@ -250,12 +250,17 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     override fun onSensorChanged(sensorEvent: SensorEvent?) {
         val mySensor = sensorEvent?.sensor
 
-        if (mySensor?.type == Sensor.TYPE_ACCELEROMETER) {
+        if (mySensor?.type == Sensor.TYPE_ACCELEROMETER && bluetoothActionsCallback.isConnectedToDevice()) {
             val x = sensorEvent.values[0]
             val y = sensorEvent.values[1]
 
+            val pwmX = Math.abs(x).calculatePWM({ it in 4.0F..9.0F })
+            val pwmY = Math.abs(y).calculatePWM({ it in 4.0F..9.0F })
+
+            //Log.d(TAG, "PWM X = $pwmX\nPWM Y = $pwmY")
+
             //Check direction and send command to vehicle
-            accelerometerManager.sendToVehicle(
+            accelerometerManager.sendToVehicle(pwmX, pwmY,
                     {
                         accelerometerManager.checkMove(Direction.X, x, y, { accelerometerManager.checkStopAction(x, y) })
                     }
@@ -265,6 +270,14 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
                     })
 
         }
+    }
+
+    private fun Float.calculatePWM(condition: (Float) -> Boolean): Int {
+        val result = (((this - 4.0F) * 255.0F) / 4.0F).toInt()
+        return if (condition(this) && result <= 255) {
+            return result
+        } else if (result > 255) 255
+        else 0
     }
 
     private enum class Direction {
@@ -306,27 +319,28 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             return "s"
         }
 
-        fun sendToVehicle(checkForX: () -> String?, checkForY: () -> String?) {
+        fun sendToVehicle(pwmX: Int, pwmY: Int, checkForX: () -> String?, checkForY: () -> String?) {
             val forX = checkForX()
             val forY = checkForY()
 
             var valueToSent: String? = null
 
             if (forX == forY && forX != null) { //When x and y value is STOP then send only once
-                valueToSent = forX
+                valueToSent = "$forX$pwmX"
             } else { //Send X or Y values
                 //Send x data
                 if (forX != null) {
-                    valueToSent = forX
+                    valueToSent = "$forX$pwmX"
                 } else if (forY != null) {
-                    valueToSent = forY
+                    valueToSent = "$forY$pwmY"
                 }
             }
 
             //Send only when value is different of previous value
             if (valueToSent != null) {
-                if(lastMove != valueToSent){
-                    Log.d(TAG, "value to send $valueToSent")
+                if (lastMove != valueToSent) {
+                    valueToSent += "\n"
+                    //Log.d(TAG, "value to send $valueToSent")
                     bluetoothActionsCallback.writeToDevice(valueToSent.toByteArray())
                 }
                 lastMove = valueToSent
