@@ -103,5 +103,15 @@
         android:max="255"
         android:padding="4dp" />
 
+    <ImageButton
+        android:layout_width="100dp"
+        android:elevation="4dp"
+        android:id="@+id/SettingsImageButton"
+        android:layout_height="30dp"
+        android:background="#FFFFFF"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_settings_black_24dp"/>
+
 </RelativeLayout>
 

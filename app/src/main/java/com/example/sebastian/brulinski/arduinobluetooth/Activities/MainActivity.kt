@@ -22,6 +22,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevic
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment
 import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
+import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ApplyVehicleWidgetsSettings
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
@@ -30,7 +31,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.R
 import org.jetbrains.anko.toast
 import showConnectingToDeviceAlert
 
-class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothActionsInterface {
+class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothActionsInterface, ApplyVehicleWidgetsSettings {
 
     //Debug and fragments tags
     private val TAG = "MainActivity" //Log tag
@@ -88,6 +89,15 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                 Snackbar.make(findViewById(R.id.mainFragmentsContainer), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
                 connectToDeviceDialog?.dismiss()
                 connectToDeviceDialog = null
+            }
+        }
+    }
+
+    private val readHandler by lazy {
+        object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message?) {
+                Looper.prepare()
+
             }
         }
     }
@@ -359,13 +369,15 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         }
     }
 
+    override fun readFromDevice() {
+        if (isConnected) {
+            myBluetooth.read(readHandler, myBluetooth.getBluetoothSocket()!!.inputStream)
+        }
+    }
+
     override fun isConnectedToDevice(): Boolean = isConnected
 
     override fun isBluetoothOn(): Boolean = isBluetoothOn
-
-    override fun readFromDevice() {
-
-    }
 
     override fun connectToDevice(device: BluetoothDevice) {
         myBluetooth.connectToDevice(device)
@@ -397,5 +409,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         }
 
         return devices
+    }
+
+    override fun applyVehicleWidgetSettings() {
+        (currentFragment as VehicleControlFragment).applyAccelerometerData()
     }
 }

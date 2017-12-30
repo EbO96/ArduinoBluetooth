@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
+import com.example.sebastian.brulinski.arduinobluetooth.Fragments.BottomSheet.VehicleWidgetsSettingsBottomSheet
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.R
@@ -47,9 +48,18 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     private var sendWhenMoved = false
 
     //Shared Preferences
-    private val preferencesFileName = "buttons_config"
-    private lateinit var sharedPref: SharedPreferences
-    private lateinit var prefEditor: SharedPreferences.Editor
+    private val preferencesButtonsFileName = "buttons_config"
+    private val preferencesWidgetsAndAccelerometerFileName = VehicleWidgetsSettingsBottomSheet.preferencesFileName
+    private lateinit var sharedPrefButtons: SharedPreferences
+    private lateinit var prefButtonsEditor: SharedPreferences.Editor
+
+    private val sharedPrefWidgetsAndAccelerometer: SharedPreferences by lazy {
+        activity.getSharedPreferences(preferencesWidgetsAndAccelerometerFileName, Context.MODE_PRIVATE)
+    }
+
+    private val preferencesWidgetsAndAccelerometerEditor: SharedPreferences.Editor by lazy {
+        sharedPrefWidgetsAndAccelerometer.edit()
+    }
 
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
@@ -154,29 +164,31 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Init shared preferences
-        sharedPref = activity.getSharedPreferences(preferencesFileName, Context.MODE_PRIVATE)
-        prefEditor = sharedPref.edit()
+        sharedPrefButtons = activity.getSharedPreferences(preferencesButtonsFileName, Context.MODE_PRIVATE)
+        prefButtonsEditor = sharedPrefButtons.edit()
 
         val actions = ArrayList<String>()
 
         //Get widgets config from shared preferences or set default values
-        actions.add(sharedPref.getString(FPKEY, "f"))
-        actions.add(sharedPref.getString(FRKEY, "s"))
-        actions.add(sharedPref.getBoolean(FHKEY, false).toString())
-        actions.add(sharedPref.getString(BPKEY, "b"))
-        actions.add(sharedPref.getString(BRKEY, "s"))
-        actions.add(sharedPref.getBoolean(BHKEY, false).toString())
-        actions.add(sharedPref.getString(LPKEY, "l"))
-        actions.add(sharedPref.getString(LRKEY, "s"))
-        actions.add(sharedPref.getBoolean(LHKEY, false).toString())
-        actions.add(sharedPref.getString(RPKEY, "r"))
-        actions.add(sharedPref.getString(RRKEY, "s"))
-        actions.add(sharedPref.getBoolean(RHKEY, false).toString())
-        actions.add(sharedPref.getInt(SEEK_MAX_KEY, 255).toString())
-        actions.add(sharedPref.getInt(SEEK_MIN_KEY, 0).toString())
-        actions.add(sharedPref.getBoolean(SEEK_HAS_KEY, false).toString())
-        actions.add(sharedPref.getString(SEEK_ID, "."))
-        actions.add(sharedPref.getBoolean(SEEK_WHEN_SEND, false).toString())
+        actions.add(sharedPrefButtons.getString(FPKEY, "f"))
+        actions.add(sharedPrefButtons.getString(FRKEY, "s"))
+        actions.add(sharedPrefButtons.getBoolean(FHKEY, false).toString())
+        actions.add(sharedPrefButtons.getString(BPKEY, "b"))
+        actions.add(sharedPrefButtons.getString(BRKEY, "s"))
+        actions.add(sharedPrefButtons.getBoolean(BHKEY, false).toString())
+        actions.add(sharedPrefButtons.getString(LPKEY, "l"))
+        actions.add(sharedPrefButtons.getString(LRKEY, "s"))
+        actions.add(sharedPrefButtons.getBoolean(LHKEY, false).toString())
+        actions.add(sharedPrefButtons.getString(RPKEY, "r"))
+        actions.add(sharedPrefButtons.getString(RRKEY, "s"))
+        actions.add(sharedPrefButtons.getBoolean(RHKEY, false).toString())
+        actions.add(sharedPrefButtons.getInt(SEEK_MAX_KEY, 255).toString())
+        actions.add(sharedPrefButtons.getInt(SEEK_MIN_KEY, 0).toString())
+        actions.add(sharedPrefButtons.getBoolean(SEEK_HAS_KEY, false).toString())
+        actions.add(sharedPrefButtons.getString(SEEK_ID, "."))
+        actions.add(sharedPrefButtons.getBoolean(SEEK_WHEN_SEND, false).toString())
+
+        applyAccelerometerData()
 
         //Set this config at widgets
         setActions(actions)
@@ -241,6 +253,9 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             } else mSensorManager.unregisterListener(this)
         }
 
+        SettingsImageButton.setOnClickListener {
+            VehicleWidgetsSettingsBottomSheet().show(activity.supportFragmentManager, "SETTINGS_BOTTOM_SHEET")
+        }
     }
 
     //Accelerometer listeners
@@ -254,6 +269,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             val x = sensorEvent.values[0]
             val y = sensorEvent.values[1]
 
+            //Calculate PWM based on values from accelerometer
             val pwmX = Math.abs(x).calculatePWM({ it in 4.0F..9.0F })
             val pwmY = Math.abs(y).calculatePWM({ it in 4.0F..9.0F })
 
@@ -273,6 +289,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     }
 
     private fun Float.calculatePWM(condition: (Float) -> Boolean): Int {
+        //Transform values in range 4..9 to values in range 0..255
         val result = (((this - 4.0F) * 255.0F) / 4.0F).toInt()
         return if (condition(this) && result <= 255) {
             return result
@@ -340,7 +357,6 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             if (valueToSent != null) {
                 if (lastMove != valueToSent) {
                     valueToSent += "\n"
-                    //Log.d(TAG, "value to send $valueToSent")
                     bluetoothActionsCallback.writeToDevice(valueToSent.toByteArray())
                 }
                 lastMove = valueToSent
@@ -556,6 +572,50 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         mSensorManager.unregisterListener(this)
     }
 
+    fun applyAccelerometerData(){
+        //For forward accelerometer move
+        WidgetsValuesFromAccelerometerAndWidgets.forwardAction =
+                sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .FORWARD_ACTION}"
+                        , "f")
+        //For back accelerometer move
+        WidgetsValuesFromAccelerometerAndWidgets.backAction =
+                sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .BACK_ACTION}"
+                        , "b")
+        //For left accelerometer move
+        WidgetsValuesFromAccelerometerAndWidgets.leftAction =
+                sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .LEFT_ACTION}"
+                        , "l")
+        //For right accelerometer move
+        WidgetsValuesFromAccelerometerAndWidgets.rightAction =
+                sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .RIGHT_ACTION}"
+                        , "r")
+        //For send pwm cation for accelerometer move
+        WidgetsValuesFromAccelerometerAndWidgets.sendPWM =
+                sharedPrefWidgetsAndAccelerometer.getBoolean("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .SEND_PWM}"
+                        , true)
+        //For append new line to accelerometer data to send
+        WidgetsValuesFromAccelerometerAndWidgets.appendNewLine =
+                sharedPrefWidgetsAndAccelerometer.getBoolean("${VehicleWidgetsSettingsBottomSheet
+                        .Companion
+                        .MySharedPreferencesKeys
+                        .APPEND_NEW_LINE}"
+                        , true)
+    }
 
     //Object of this class represents single widget as button or seekbar
     private inner class WidgetConfig(private var pressAction: String = "1", private var releaseAction: String = "2",
@@ -583,15 +643,15 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             appendNewLine = containNewLine
 
             if (move == Move.SEEKBAR && action != Action.SEND_WHEN_MOVED && action != Action.SEEK_ID) {
-                prefEditor.putInt("$move-$action", toSave.toInt())
+                prefButtonsEditor.putInt("$move-$action", toSave.toInt())
             } else if (action == Action.SEND_WHEN_MOVED && whenSend != null)
-                prefEditor.putBoolean("$move-$action", whenSend)
+                prefButtonsEditor.putBoolean("$move-$action", whenSend)
             else if (action == Action.SEEK_ID)
-                prefEditor.putString("$move-$action", seekId)
-            else prefEditor.putString("$move-$action", toSave)
+                prefButtonsEditor.putString("$move-$action", seekId)
+            else prefButtonsEditor.putString("$move-$action", toSave)
 
-            prefEditor.putBoolean("$move-${Action.HAS_NEW_LINE}", containNewLine)
-            prefEditor.commit()
+            prefButtonsEditor.putBoolean("$move-${Action.HAS_NEW_LINE}", containNewLine)
+            prefButtonsEditor.commit()
         }
 
         fun press(): String = pressAction
@@ -599,5 +659,14 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         fun hasNewLine(): Boolean = appendNewLine
         fun sendWhenItMoves(): Boolean = whenSend!!
         fun speedSeekBarId(): String? = seekBarId!!
+    }
+
+    private object WidgetsValuesFromAccelerometerAndWidgets {
+        var forwardAction: String = ""
+        var backAction: String = ""
+        var leftAction: String = ""
+        var rightAction: String = ""
+        var sendPWM: Boolean = true
+        var appendNewLine: Boolean = true
     }
 }

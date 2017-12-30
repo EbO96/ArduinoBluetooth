@@ -46,4 +46,14 @@
     <string name="connecting_to">Connecting to...</string>
     <string name="id">ID</string>
     <string name="char_id_of_this_seekbar_before_value">char ID of this SeekBar before value</string>
+    <string name="settings">Settings</string>
+    <string name="forward">Forward</string>
+    <string name="forward_action">Forward action</string>
+    <string name="back">Back</string>
+    <string name="back_action">Back action</string>
+    <string name="left_action">Left action</string>
+    <string name="left_label">Left</string>
+    <string name="right_label">Right</string>
+    <string name="right_action">Right action</string>
+    <string name="send_pwm_values">Send PWM values</string>
 </resources>

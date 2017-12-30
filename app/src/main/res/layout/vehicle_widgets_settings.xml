@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/settingsLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:text="@string/settings"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/accelerometerSectionLabel"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/settingsLabel"
+        android:paddingStart="8dp"
+        android:text="@string/accelerometer"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+    <!--Forward-->
+    <TextView
+        android:id="@+id/forwardLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/accelerometerSectionLabel"
+        android:padding="8dp"
+        android:text="@string/forward" />
+
+    <EditText
+        android:id="@+id/forwardValueEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/accelerometerSectionLabel"
+        android:layout_toRightOf="@id/forwardLabel"
+        android:hint="@string/forward_action"
+        android:padding="8dp" />
+    <!--Back-->
+    <TextView
+        android:id="@+id/backLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/forwardValueEditText"
+        android:padding="8dp"
+        android:text="@string/back" />
+
+    <EditText
+        android:id="@+id/backValueEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/forwardValueEditText"
+        android:layout_toRightOf="@id/forwardLabel"
+        android:hint="@string/back_action"
+        android:padding="8dp" />
+
+    <!--Left-->
+    <TextView
+        android:id="@+id/leftLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/backValueEditText"
+        android:padding="8dp"
+        android:text="@string/left_label" />
+
+    <EditText
+        android:id="@+id/leftValueEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/backValueEditText"
+        android:layout_toRightOf="@id/forwardLabel"
+        android:hint="@string/left_action"
+        android:padding="8dp" />
+    <!--Right-->
+    <TextView
+        android:id="@+id/rightLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/leftValueEditText"
+        android:padding="8dp"
+        android:text="@string/right_label" />
+
+    <EditText
+        android:id="@+id/rightValueEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/leftValueEditText"
+        android:layout_toRightOf="@id/forwardLabel"
+        android:hint="@string/right_action"
+        android:padding="8dp" />
+
+    <CheckBox
+        android:layout_below="@id/rightValueEditText"
+        android:layout_marginStart="8dp"
+        android:padding="16dp"
+        android:checked="true"
+        android:text="@string/send_pwm_values"
+        android:id="@+id/sendPWMValuesCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <CheckBox
+        android:layout_below="@id/sendPWMValuesCheckBox"
+        android:layout_marginStart="8dp"
+        android:padding="16dp"
+        android:checked="true"
+        android:text="@string/append_new_line"
+        android:id="@+id/appendNewLineForAccelerometerCheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

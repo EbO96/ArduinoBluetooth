@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 
 /**
@@ -75,14 +75,15 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
 
     fun cancelDiscovery() {
         mBluetoothAdapter?.cancelDiscovery()
-        try{
+        try {
             activity?.unregisterReceiver(devicesReceiver)
-        }catch (e: IllegalArgumentException){
+        } catch (e: IllegalArgumentException) {
 
         }
     }
 
     fun write(toWrite: ByteArray, socketOutputStream: OutputStream) {
+
         try {
             socketOutputStream.write(
                     toWrite
@@ -92,11 +93,16 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
         }
     }
 
+    fun read(readHandler: Handler, socketInputStream: InputStream) {
+
+    }
+
     inner class ConnectThread(device: BluetoothDevice, handler: Handler) : Thread() {
 
         private var mHandler: Handler = handler
         private var mDevice = device
         private var mBluetoothSocket: BluetoothSocket?
+        private var inputStream: InputStream? = null
         private val TAG = "ConnectThread"
         //APP UUID
         private val UUID = java.util.UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
@@ -107,7 +113,6 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
             try {
                 tmp = mDevice.createRfcommSocketToServiceRecord(UUID)
             } catch (e: IOException) {
-                Log.e(TAG, "Socket's create() method failed", e);
             }
             mBluetoothSocket = tmp
 
@@ -118,11 +123,11 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
 
             try {
                 mBluetoothSocket?.connect()
+                inputStream = mBluetoothSocket?.inputStream
             } catch (connectionException: IOException) {
                 try {
                     mBluetoothSocket?.close()
                 } catch (closeException: IOException) {
-                    Log.e(TAG, "Could not close the client socket", closeException);
                 }
                 return
             }
@@ -133,6 +138,18 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
             bundle.putParcelable("device", mDevice)
             message.data = bundle
             mHandler.handleMessage(message)
+
+            val mmBuffer = ByteArray(1024)
+            var numberOfBytes: Int? = 0
+
+            while (true) {
+                try {
+                    numberOfBytes = inputStream!!.read(mmBuffer)
+                    Log.d(TAG, "Data received")
+                } catch (e: IOException) {
+                    break
+                }
+            }
         }
 
         fun cancel() {
