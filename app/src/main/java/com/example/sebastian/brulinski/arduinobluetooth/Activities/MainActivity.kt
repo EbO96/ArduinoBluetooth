@@ -28,6 +28,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import showConnectingToDeviceAlert
 
@@ -294,6 +295,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun onResume() {
         super.onResume()
+        currentFragment = supportFragmentManager.findFragmentById(mainFragmentsContainer.id)
+        if (currentFragment !is ConnectToDevice)
+            supportActionBar?.hide()
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
             turnOnBluetooth() //Turn on bluetooth when disabled
         }

@@ -571,6 +571,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
 
+
     override fun onResume() {
         super.onResume()
         if (accelerometerModeSwitch.isChecked)
