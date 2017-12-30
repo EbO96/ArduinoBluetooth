@@ -468,19 +468,19 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         }
 
         moveForwardImageButton.setOnClickListener {
-            activity.toast("${Move.FORWARD}\nPress: ${actionForward.press()}\nRelease: ${actionForward.release()}\nNew line: ${actionForward.hasNewLine()}")
+            activity.toast("${Move.FORWARD}\nPress: ${actionForward.press().trim()}\nRelease: ${actionForward.release().trim()}\nNew line: ${actionForward.hasNewLine()}")
         }
 
         moveBackImageButton.setOnClickListener {
-            activity.toast("${Move.BACK}\nPress: ${actionBack.press()}\nRelease: ${actionBack.release()}\nNew line: ${actionBack.hasNewLine()}")
+            activity.toast("${Move.BACK}\nPress: ${actionBack.press().trim()}\nRelease: ${actionBack.release().trim()}\nNew line: ${actionBack.hasNewLine()}")
         }
 
         turnLeftImageButton.setOnClickListener {
-            activity.toast("${Move.LEFT}\nPress : ${actionLeft.press()}\nRelease: ${actionLeft.release()}\nNew line: ${actionLeft.hasNewLine()}")
+            activity.toast("${Move.LEFT}\nPress : ${actionLeft.press().trim()}\nRelease: ${actionLeft.release().trim()}\nNew line: ${actionLeft.hasNewLine()}")
         }
 
         turnRightImageButton.setOnClickListener {
-            activity.toast("${Move.RIGHT}\nPress: ${actionRight.press()}\nRelease: ${actionRight.release()}\nNew line: ${actionRight.hasNewLine()}")
+            activity.toast("${Move.RIGHT}\nPress: ${actionRight.press().trim()}\nRelease: ${actionRight.release().trim()}\nNew line: ${actionRight.hasNewLine()}")
         }
 
         vehicleSpeedSeekBar.setOnTouchListener { _, motionEvent ->
