@@ -11,8 +11,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.ApplyVehicleWidgetsSettings
 import com.example.sebastian.brulinski.arduinobluetooth.R
-import android.view.ViewGroup.LayoutParams.FILL_PARENT
-
+import org.jetbrains.anko.support.v4.toast
 
 
 class VehicleWidgetsSettingsBottomSheet : BottomSheetDialogFragment() {
@@ -64,6 +63,29 @@ class VehicleWidgetsSettingsBottomSheet : BottomSheetDialogFragment() {
         sendPwmCheckBox = view.findViewById(R.id.sendPWMValuesCheckBox)
         appendNewLineCheckBox = view.findViewById(R.id.appendNewLineForAccelerometerCheckBox)
 
+        //Set values from shared pref
+        forwardActionEditText.setText(
+                sharedPreferences.getString("${MySharedPreferencesKeys.FORWARD_ACTION}", "f")
+        )
+
+        backActionEditText.setText(
+                sharedPreferences.getString("${MySharedPreferencesKeys.BACK_ACTION}", "b")
+        )
+
+        leftActionEditText.setText(
+                sharedPreferences.getString("${MySharedPreferencesKeys.LEFT_ACTION}", "l")
+        )
+
+        rightActionEditText.setText(
+                sharedPreferences.getString("${MySharedPreferencesKeys.RIGHT_ACTION}", "r")
+        )
+
+        sendPwmCheckBox.isChecked =
+        sharedPreferences.getBoolean("${MySharedPreferencesKeys.SEND_PWM}", true)
+
+
+        appendNewLineCheckBox.isChecked =
+                sharedPreferences.getBoolean("${MySharedPreferencesKeys.APPEND_NEW_LINE}", true)
 
         return view
     }
@@ -92,7 +114,7 @@ class VehicleWidgetsSettingsBottomSheet : BottomSheetDialogFragment() {
     override fun onDestroy() {
         super.onDestroy()
         getValuesFromFieldsAndSave()
-
+        toast(getString(R.string.config_saved))
     }
 
     override fun onAttach(context: Context?) {

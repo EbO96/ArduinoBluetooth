@@ -56,4 +56,5 @@
     <string name="right_label">Right</string>
     <string name="right_action">Right action</string>
     <string name="send_pwm_values">Send PWM values</string>
+    <string name="config_saved">Config saved.</string>
 </resources>

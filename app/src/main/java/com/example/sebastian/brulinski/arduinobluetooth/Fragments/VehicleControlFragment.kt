@@ -43,6 +43,9 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
     private val actionLeft by lazy { WidgetConfig() }
     private val actionRight by lazy { WidgetConfig() }
     private val speedSeekBar by lazy { WidgetConfig() }
+    private val mWidgetsValuesFromAccelerometerAndWidgets by lazy {
+        WidgetsValuesFromAccelerometerAndWidgets()
+    }
 
     //Seekbar flags
     private var sendWhenMoved = false
@@ -314,18 +317,18 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
                 return when {
                     value1 < -5 && value2.checkStopXorY() -> when (direction) {
                         Direction.X -> {
-                            "f"
+                            mWidgetsValuesFromAccelerometerAndWidgets.forwardAction
                         }
                         Direction.Y -> {
-                            "l"
+                            mWidgetsValuesFromAccelerometerAndWidgets.leftAction
                         }
                     }
                     value1 > 5 && value2.checkStopXorY() -> when (direction) {
                         Direction.X -> {
-                            "b"
+                            mWidgetsValuesFromAccelerometerAndWidgets.backAction
                         }
                         Direction.Y -> {
-                            "r"
+                            mWidgetsValuesFromAccelerometerAndWidgets.rightAction
                         }
                     }
                     else -> {
@@ -333,7 +336,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
                     }
                 }
             }
-            return "s"
+            return "s" //TODO impelment STOP action in settings
         }
 
         fun sendToVehicle(pwmX: Int, pwmY: Int, checkForX: () -> String?, checkForY: () -> String?) {
@@ -341,22 +344,29 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
             val forY = checkForY()
 
             var valueToSent: String? = null
+            var pwmValue: Int? = null
 
             if (forX == forY && forX != null) { //When x and y value is STOP then send only once
-                valueToSent = "$forX$pwmX"
+                valueToSent = forX
+                pwmValue = pwmX
             } else { //Send X or Y values
                 //Send x data
                 if (forX != null) {
-                    valueToSent = "$forX$pwmX"
+                    valueToSent = forX
+                    pwmValue = pwmX
                 } else if (forY != null) {
-                    valueToSent = "$forY$pwmY"
+                    valueToSent = forY
+                    pwmValue = pwmY
                 }
             }
 
             //Send only when value is different of previous value
             if (valueToSent != null) {
                 if (lastMove != valueToSent) {
-                    valueToSent += "\n"
+                    if (mWidgetsValuesFromAccelerometerAndWidgets.sendPWM)
+                        valueToSent += "$pwmValue"
+                    if (mWidgetsValuesFromAccelerometerAndWidgets.appendNewLine)
+                        valueToSent += "\n"
                     bluetoothActionsCallback.writeToDevice(valueToSent.toByteArray())
                 }
                 lastMove = valueToSent
@@ -572,44 +582,44 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         mSensorManager.unregisterListener(this)
     }
 
-    fun applyAccelerometerData(){
+    fun applyAccelerometerData() {
         //For forward accelerometer move
-        WidgetsValuesFromAccelerometerAndWidgets.forwardAction =
+        mWidgetsValuesFromAccelerometerAndWidgets.forwardAction =
                 sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
                         .FORWARD_ACTION}"
                         , "f")
         //For back accelerometer move
-        WidgetsValuesFromAccelerometerAndWidgets.backAction =
+        mWidgetsValuesFromAccelerometerAndWidgets.backAction =
                 sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
                         .BACK_ACTION}"
                         , "b")
         //For left accelerometer move
-        WidgetsValuesFromAccelerometerAndWidgets.leftAction =
+        mWidgetsValuesFromAccelerometerAndWidgets.leftAction =
                 sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
                         .LEFT_ACTION}"
                         , "l")
         //For right accelerometer move
-        WidgetsValuesFromAccelerometerAndWidgets.rightAction =
+        mWidgetsValuesFromAccelerometerAndWidgets.rightAction =
                 sharedPrefWidgetsAndAccelerometer.getString("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
                         .RIGHT_ACTION}"
                         , "r")
         //For send pwm cation for accelerometer move
-        WidgetsValuesFromAccelerometerAndWidgets.sendPWM =
+        mWidgetsValuesFromAccelerometerAndWidgets.sendPWM =
                 sharedPrefWidgetsAndAccelerometer.getBoolean("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
                         .SEND_PWM}"
                         , true)
         //For append new line to accelerometer data to send
-        WidgetsValuesFromAccelerometerAndWidgets.appendNewLine =
+        mWidgetsValuesFromAccelerometerAndWidgets.appendNewLine =
                 sharedPrefWidgetsAndAccelerometer.getBoolean("${VehicleWidgetsSettingsBottomSheet
                         .Companion
                         .MySharedPreferencesKeys
@@ -661,12 +671,10 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         fun speedSeekBarId(): String? = seekBarId!!
     }
 
-    private object WidgetsValuesFromAccelerometerAndWidgets {
-        var forwardAction: String = ""
-        var backAction: String = ""
-        var leftAction: String = ""
-        var rightAction: String = ""
-        var sendPWM: Boolean = true
-        var appendNewLine: Boolean = true
-    }
+    private class WidgetsValuesFromAccelerometerAndWidgets(var forwardAction: String = "",
+                                                           var backAction: String = "",
+                                                           var leftAction: String = "",
+                                                           var rightAction: String = "",
+                                                           var sendPWM: Boolean = true,
+                                                           var appendNewLine: Boolean = true)
 }
