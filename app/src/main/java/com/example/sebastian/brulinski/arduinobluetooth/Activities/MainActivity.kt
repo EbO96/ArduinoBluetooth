@@ -296,6 +296,11 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun onResume() {
         super.onResume()
+        val fragment = supportFragmentManager.findFragmentById(R.id.mainFragmentsContainer)
+        if(fragment !is ConnectToBluetoothDevices)
+            supportActionBar?.hide()
+        else supportActionBar?.show()
+
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
             turnOnBluetooth() //Turn on bluetooth when disabled
         }
