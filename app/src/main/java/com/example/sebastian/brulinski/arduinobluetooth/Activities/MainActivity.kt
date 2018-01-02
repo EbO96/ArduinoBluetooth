@@ -18,7 +18,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice
+import com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToBluetoothDevices
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.Terminal
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.VehicleControlFragment
 import com.example.sebastian.brulinski.arduinobluetooth.Helper.MyBluetooth
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     //Fragments
     private val fragmentManager by lazy { supportFragmentManager }
-    private val connectToDevice by lazy { ConnectToDevice() }
+    private val connectToDevice by lazy { ConnectToBluetoothDevices() }
     private val terminal by lazy { Terminal() }
     private val vehicleControl by lazy { VehicleControlFragment() }
     private var currentFragment: Fragment? = null
@@ -159,6 +159,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.app_toolbar))
 
         //Get bluetooth instance
         myBluetooth = MyBluetooth(this, connectHandler, devicesReceiver)
@@ -295,9 +296,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun onResume() {
         super.onResume()
-        currentFragment = supportFragmentManager.findFragmentById(mainFragmentsContainer.id)
-        if (currentFragment !is ConnectToDevice)
-            supportActionBar?.hide()
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
             turnOnBluetooth() //Turn on bluetooth when disabled
         }
@@ -418,4 +416,5 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     override fun applyVehicleWidgetSettings() {
         (currentFragment as VehicleControlFragment).applyAccelerometerData()
     }
+
 }

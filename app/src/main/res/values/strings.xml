@@ -45,7 +45,7 @@
     <string name="send_when_it_moves">Send when speed slider moves</string>
     <string name="connecting_to">Connecting to...</string>
     <string name="id">ID</string>
-    <string name="char_id_of_this_seekbar_before_value">char ID of this SeekBar before value</string>
+    <string name="char_id_of_this_seekbar_before_value">ID of this speed SeekBar before value</string>
     <string name="settings">Settings</string>
     <string name="forward">Forward</string>
     <string name="forward_action">Forward action</string>

@@ -25,12 +25,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_connect_to_device.*
-import org.jetbrains.anko.support.v4.act
+import kotlinx.android.synthetic.main.fragment_connect_to_bluetooth_devices.*
 import org.jetbrains.anko.toast
 import showLoginDialog
 
-class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
+class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
     //Tags
     private val TAG = "ConnectToDevice"
@@ -53,7 +52,7 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
     //START
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
-            layoutInflater.inflate(R.layout.fragment_connect_to_device, container, false)
+            layoutInflater.inflate(R.layout.fragment_connect_to_bluetooth_devices, container, false)
 
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
@@ -68,50 +67,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
 
         terminalButton.setOnClickListener {
             setProperFragmentCallback.setTerminalFragment()
-        }
-
-        //On/Off control from Website
-        controlFromWebSwitch.setOnCheckedChangeListener { compoundButton, checked ->
-            if (checked) {
-                if (checkAlreadyLoggedIn()) {
-
-                } else {
-                    showLoginDialog(activity, { email, password, dialog ->
-                        //Account is required
-                        loginOrCreateAccount(email, password, dialog)
-                    })
-                }
-            }
-
-            if (checkAlreadyLoggedIn()) {
-                if (bluetoothActionsCallback.isConnectedToDevice()) {
-                    if (checked) {
-                        webControlLinkTextView.visibility = View.VISIBLE
-                        webCommandsEventListener = webCommandsReference.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot?) {
-                                //When user are logged then we can send to device all incoming messages from web
-                                bluetoothActionsCallback.writeToDevice("${snapshot?.value}\n".toByteArray())
-                            }
-
-                            override fun onCancelled(p0: DatabaseError?) {
-
-                            }
-                        })
-                    } else {
-                        webControlLinkTextView.visibility = View.INVISIBLE
-                        webCommandsReference.removeEventListener(webCommandsEventListener)
-                    }
-                } else {
-                    activity.toast(R.string.first_connect_to_device_msg)
-                    Handler().postDelayed({
-                        disconnectFromWeb()
-                    }, 500)
-                }
-            } else {
-                Handler().postDelayed({
-                    disconnectFromWeb()
-                }, 500)
-            }
         }
 
         /**
@@ -225,8 +180,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
         } catch (e: RuntimeException) {
             e.printStackTrace()
         }
-        controlFromWebSwitch.isChecked = false
-        webControlLinkTextView.visibility = View.INVISIBLE
     }
 
     private fun showDisconnectMessage() {
@@ -252,7 +205,6 @@ class ConnectToDevice : Fragment(), BluetoothStateObserversInterface {
             }
             R.id.logout -> {
                 FirebaseAuth.getInstance().signOut()
-                controlFromWebSwitch.isChecked = false
                 checkAlreadyLoggedIn()
             }
         }

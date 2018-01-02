@@ -492,6 +492,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         }
 
         vehicleSpeedSeekBar.setOnSeekBarChangeListener(null)
+
     }
 
     //Show this dialog when we want to edit some responses at widgets

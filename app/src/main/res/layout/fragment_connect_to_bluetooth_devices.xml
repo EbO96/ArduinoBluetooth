@@ -1,17 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ConnectToDeviceRootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FAFAFA"
-    android:scrollbars="vertical">
+    android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToDevice">
+        tools:context="com.example.sebastian.brulinski.arduinobluetooth.Fragments.ConnectToBluetoothDevices">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,7 +25,6 @@
                 android:layout_height="wrap_content"
                 android:background="#FFFFFF"
                 android:visibility="gone">
-
 
                 <ProgressBar
                     android:id="@+id/discoverDevicesProgressBar"
@@ -93,28 +89,6 @@
                 android:text="@string/terminal"
                 android:textColor="#ffffff" />
 
-            <Switch
-                android:id="@+id/controlFromWebSwitch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_marginStart="4dp"
-                android:background="@color/colorPrimary"
-                android:padding="24dp"
-                android:text="@string/control_from_web"
-                android:textColor="#ffffff" />
-
-            <TextView
-                android:id="@+id/webControlLinkTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginEnd="4dp"
-                android:layout_marginStart="4dp"
-                android:text="@string/firebase_link"
-                android:textAlignment="center"
-                android:visibility="invisible" />
-
             <Button
                 android:id="@+id/vehicleControlButton"
                 android:layout_width="match_parent"
@@ -127,17 +101,6 @@
                 android:text="@string/vehicle_control"
                 android:textColor="#ffffff" />
 
-            <Button
-                android:id="@+id/CustomButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="4dp"
-                android:layout_marginStart="4dp"
-                android:background="@color/colorPrimary"
-                android:padding="24dp"
-                android:text="@string/custom_action"
-                android:textColor="#ffffff" />
 
         </LinearLayout>
 
@@ -145,6 +108,7 @@
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>
-        
+
+
 
 
