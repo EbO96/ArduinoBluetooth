@@ -3,7 +3,6 @@ package com.example.sebastian.brulinski.arduinobluetooth.Fragments
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -20,14 +19,10 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.R
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_connect_to_bluetooth_devices.*
 import org.jetbrains.anko.toast
-import showLoginDialog
 
 class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
@@ -65,16 +60,16 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
         setProperFragmentCallback = activity as SetProperFragmentInterface //Init interface used to changing fragments in container
 
-        terminalButton.setOnClickListener {
-            setProperFragmentCallback.setTerminalFragment()
-        }
-
-        /**
-         *Set proper fragment
-         */
-        vehicleControlButton.setOnClickListener {
-            setProperFragmentCallback.setVehicleControlFragment()
-        }
+//        terminalButton.setOnClickListener {
+//            setProperFragmentCallback.setTerminalFragment()
+//        }
+//
+//        /**
+//         *Set proper fragment
+//         */
+//        vehicleControlButton.setOnClickListener {
+//            setProperFragmentCallback.setVehicleControlFragment()
+//        }
 
         cancelDiscoveringButton.setOnClickListener {
             bluetoothActionsCallback.stopDiscoveringDevices()
@@ -155,15 +150,13 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
     //This is methods which is trigger when BluetoothDirector send notifications
     override fun update(state: MainActivity.Companion.BluetoothStates) {
 
-        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED && this.isAdded) {
+        if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_DISCONNECTED) {
             connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.INVISIBLE
             showDisconnectMessage()
             disconnectFromWeb()
             connectedDeviceView = null
-        } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED && this.isAdded) {
-            activity.runOnUiThread {
-                connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.VISIBLE
-            }
+        } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED) {
+            connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.VISIBLE
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_FOUND) {
             devicesAdapter.notifyDataSetChanged()
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_BT_ON) {

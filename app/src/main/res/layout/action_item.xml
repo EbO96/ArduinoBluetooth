@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/actionTitleTextView"
+            android:text="@string/terminal"
+            android:textColor="#FFFFFF"
+            android:layout_alignParentStart="true"
+            android:layout_margin="16dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/actionIconImageView"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="32dp"
+            android:src="@drawable/terminal_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_width="42dp"
+            android:layout_height="42dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@color/colorPrimaryDark">
+
+        <TextView
+            android:id="@+id/actionDescriptionTextView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:padding="16dp"
+            android:maxLength="100"
+            android:textColor="#FFFFFF"
+            android:textStyle="italic"
+            android:text="@string/lorem_ipsum"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+</LinearLayout>

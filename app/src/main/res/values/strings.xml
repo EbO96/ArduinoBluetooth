@@ -57,4 +57,6 @@
     <string name="right_action">Right action</string>
     <string name="send_pwm_values">Send PWM values</string>
     <string name="config_saved">Config saved.</string>
+    <string name="send_new_line">Send new line</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur malesuada nisi ut fringilla scelerisque. Maecenas hendrerit molestie massa sed rutrum. Nunc ullamcorper nisl eu purus vulputate, et imperdiet nunc malesuada</string>
 </resources>

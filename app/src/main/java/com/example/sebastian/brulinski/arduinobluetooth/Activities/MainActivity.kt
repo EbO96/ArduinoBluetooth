@@ -28,7 +28,6 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
-import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import showConnectingToDeviceAlert
 
@@ -294,12 +293,15 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        val fragment = supportFragmentManager.findFragmentById(R.id.mainFragmentsContainer)
-        if(fragment !is ConnectToBluetoothDevices)
+    private fun hideToolbar(condition: () -> Boolean) {
+
+        if (condition())
             supportActionBar?.hide()
         else supportActionBar?.show()
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
             turnOnBluetooth() //Turn on bluetooth when disabled
@@ -335,7 +337,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun setTerminalFragment() {
-        supportActionBar?.hide()
+
         val transaction = fragmentManager.beginTransaction()
         currentFragment = terminal
         mBluetoothStateDirector.registerObserver(terminal)
@@ -346,7 +348,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun setVehicleControlFragment() {
 
-        supportActionBar?.hide()
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         val transaction = fragmentManager.beginTransaction()
