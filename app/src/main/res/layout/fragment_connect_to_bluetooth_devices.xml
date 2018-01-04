@@ -76,58 +76,63 @@
             android:layout_gravity="center"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/terminal_section"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/actionsRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@color/colorPrimary">
+                android:layout_height="wrap_content"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@string/terminal"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="#FFFFFF"
-                    android:padding="24dp"
-                    android:layout_alignParentStart="true"/>
+            <!--<RelativeLayout-->
+                <!--android:id="@+id/terminal_section"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="100dp"-->
+                <!--android:background="@color/colorPrimary">-->
 
-                <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    android:src="@drawable/terminal_icon"
-                    android:layout_margin="16dp"/>
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:text="@string/terminal"-->
+                    <!--android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"-->
+                    <!--android:textColor="#FFFFFF"-->
+                    <!--android:padding="24dp"-->
+                    <!--android:layout_alignParentStart="true"/>-->
 
-            </RelativeLayout>
+                <!--<ImageView-->
+                    <!--android:layout_width="36dp"-->
+                    <!--android:layout_height="36dp"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:layout_alignParentEnd="true"-->
+                    <!--android:src="@drawable/terminal_icon"-->
+                    <!--android:layout_margin="16dp"/>-->
 
-            <RelativeLayout
-                android:layout_marginTop="4dp"
-                android:id="@+id/vehicle_control_section"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@color/colorPrimary">
+            <!--</RelativeLayout>-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="@string/vehicle_control"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="#FFFFFF"
-                    android:padding="24dp"
-                    android:layout_alignParentStart="true"/>
+            <!--<RelativeLayout-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:id="@+id/vehicle_control_section"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="100dp"-->
+                <!--android:background="@color/colorPrimary">-->
 
-                <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    android:src="@drawable/vehicle_control_icon"
-                    android:layout_margin="16dp"/>
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:text="@string/vehicle_control"-->
+                    <!--android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"-->
+                    <!--android:textColor="#FFFFFF"-->
+                    <!--android:padding="24dp"-->
+                    <!--android:layout_alignParentStart="true"/>-->
 
-            </RelativeLayout>
+                <!--<ImageView-->
+                    <!--android:layout_width="36dp"-->
+                    <!--android:layout_height="36dp"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:layout_alignParentEnd="true"-->
+                    <!--android:src="@drawable/vehicle_control_icon"-->
+                    <!--android:layout_margin="16dp"/>-->
+
+            <!--</RelativeLayout>-->
 
             <!--<Button-->
                 <!--android:id="@+id/terminalButton"-->

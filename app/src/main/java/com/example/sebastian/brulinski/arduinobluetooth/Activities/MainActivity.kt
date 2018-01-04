@@ -14,6 +14,7 @@ import android.os.*
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -28,6 +29,7 @@ import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFrag
 import com.example.sebastian.brulinski.arduinobluetooth.Models.MyBluetoothDevice
 import com.example.sebastian.brulinski.arduinobluetooth.Observer.BluetoothStateDirector
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import showConnectingToDeviceAlert
 
@@ -159,6 +161,12 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.app_toolbar))
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            val fragment = supportFragmentManager.findFragmentById(mainFragmentsContainer.id)
+
+            setProperTitleAtToolbar(fragment)
+        }
 
         //Get bluetooth instance
         myBluetooth = MyBluetooth(this, connectHandler, devicesReceiver)
@@ -300,8 +308,28 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         else supportActionBar?.show()
     }
 
+    private fun setProperTitleAtToolbar(currentVisibleFragment: Fragment){
+
+        when (currentVisibleFragment) {
+
+            is ConnectToBluetoothDevices -> {
+                supportActionBar?.title = getString(R.string.connect_fragmnent_title)
+            }
+            is Terminal -> {
+                supportActionBar?.title = getString(R.string.terminal)
+            }
+            is VehicleControlFragment -> {
+                supportActionBar?.title = getString(R.string.vehicle_control)
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+
+        val f = supportFragmentManager.findFragmentById(R.id.mainFragmentsContainer)
+
+        setProperTitleAtToolbar(f)
 
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
             turnOnBluetooth() //Turn on bluetooth when disabled
@@ -337,6 +365,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun setTerminalFragment() {
+
+        supportActionBar?.title = ""
 
         val transaction = fragmentManager.beginTransaction()
         currentFragment = terminal

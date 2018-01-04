@@ -10,10 +10,7 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.SeekBar
 import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Fragments.BottomSheet.VehicleWidgetsSettingsBottomSheet
@@ -225,6 +222,8 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setHasOptionsMenu(true)
 
         vehicleSpeedSeekBar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
         sendWhenMoved = speedSeekBar.sendWhenItMoves()
@@ -562,6 +561,11 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement BluetoothActionsInterface", e)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        menu?.clear()
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onDestroyView() {

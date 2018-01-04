@@ -9,19 +9,22 @@ import android.widget.TextView
 import com.example.sebastian.brulinski.arduinobluetooth.Models.ActionsItem
 import com.example.sebastian.brulinski.arduinobluetooth.R
 
-class ActionsAdapters(val actionsItems: ArrayList<ActionsItem>, val listItemClickListener: View.OnClickListener): RecyclerView.Adapter<ActionsAdapters.MyViewHolder>() {
+class ActionsAdapter(val actionsItems: ArrayList<ActionsItem>, val listItemClickListener: View.OnClickListener): RecyclerView.Adapter<ActionsAdapter.MyViewHolder>() {
 
     override fun onBindViewHolder(holder: MyViewHolder?, position: Int) {
         holder?.itemView?.setOnClickListener(listItemClickListener)
+
+        val objectFromArray = actionsItems[position]
+
+        holder?.actionTitle?.text = objectFromArray.itemTitle
+        holder?.actionDescription?.text = objectFromArray.itemDescription
+        holder?.actionIcon?.setImageDrawable(objectFromArray.itemImage)
     }
 
     override fun getItemCount(): Int = actionsItems.size
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): MyViewHolder {
-        val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.action_item, parent)
-
-        return MyViewHolder(itemView)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): MyViewHolder =
+         MyViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.action_item, parent, false))
 
     inner class MyViewHolder(itemView: View?): RecyclerView.ViewHolder(itemView) {
         val actionTitle = itemView!!.findViewById<TextView>(R.id.actionTitleTextView)

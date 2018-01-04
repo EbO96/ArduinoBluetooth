@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -16,7 +17,9 @@ import com.example.sebastian.brulinski.arduinobluetooth.Activities.MainActivity
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothActionsInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.BluetoothStateObserversInterface
 import com.example.sebastian.brulinski.arduinobluetooth.Interfaces.SetProperFragmentInterface
+import com.example.sebastian.brulinski.arduinobluetooth.Models.ActionsItem
 import com.example.sebastian.brulinski.arduinobluetooth.R
+import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.ActionsAdapter
 import com.example.sebastian.brulinski.arduinobluetooth.RecyclerAdapters.DevicesAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -27,14 +30,32 @@ import org.jetbrains.anko.toast
 class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
     //Tags
-    private val TAG = "ConnectToDevice"
+    private val TAG = "ConnectToDevices"
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
     private lateinit var setProperFragmentCallback: SetProperFragmentInterface
 
     //List elements
     private lateinit var devicesAdapter: DevicesAdapter
+    private lateinit var actionsAdapter: ActionsAdapter
+    private val actionItemArray = ArrayList<ActionsItem>()
     private var connectedDeviceView: View? = null
+
+    private val devicesLayoutManager by lazy {
+        LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+    }
+
+    private val actionsLayoutManager by lazy {
+        LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+    }
+
+    private val itemDecorator by lazy {
+        DividerItemDecoration(activity, devicesLayoutManager.orientation)
+    }
+
+    private val actionsItemDecorator by lazy {
+        DividerItemDecoration(activity, devicesLayoutManager.orientation)
+    }
 
     //Menu item
     private var logOutMenuItem: MenuItem? = null
@@ -57,19 +78,9 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
         //Set devices recycler
         setDevicesRecycler()
+        setActionsRecycler()
 
         setProperFragmentCallback = activity as SetProperFragmentInterface //Init interface used to changing fragments in container
-
-//        terminalButton.setOnClickListener {
-//            setProperFragmentCallback.setTerminalFragment()
-//        }
-//
-//        /**
-//         *Set proper fragment
-//         */
-//        vehicleControlButton.setOnClickListener {
-//            setProperFragmentCallback.setVehicleControlFragment()
-//        }
 
         cancelDiscoveringButton.setOnClickListener {
             bluetoothActionsCallback.stopDiscoveringDevices()
@@ -104,10 +115,9 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
     }
 
     private fun setDevicesRecycler() { //Init recycler where all found and paired devices are displayed
-        val layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-        val itemDecorator = DividerItemDecoration(activity, layoutManager.orientation)
+
         devicesRecycler.addItemDecoration(itemDecorator)
-        devicesRecycler.layoutManager = layoutManager
+        devicesRecycler.layoutManager = devicesLayoutManager
 
         //This listener responses at click at devices list
         val clickListener = View.OnClickListener { view ->
@@ -116,6 +126,32 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
         //Set devices adapter
         devicesAdapter = DevicesAdapter(bluetoothActionsCallback.getMyBluetoothDevices(), activity, clickListener)
         devicesRecycler.adapter = devicesAdapter
+    }
+
+    private fun setActionsRecycler() {
+
+        actionsItemDecorator.setDrawable(ContextCompat.getDrawable(activity, R.drawable.divider))
+        actionsRecyclerView.addItemDecoration(actionsItemDecorator)
+        actionsRecyclerView.layoutManager = LinearLayoutManager(activity)
+
+        val listItemClickListener = View.OnClickListener { view ->
+
+            val title = view.findViewById<TextView>(R.id.actionTitleTextView)
+
+            when (title.text) {
+                getString(R.string.terminal) -> setProperFragmentCallback.setTerminalFragment()
+                getString(R.string.vehicle_control) -> setProperFragmentCallback.setVehicleControlFragment()
+            }
+        }
+
+        actionItemArray.add(ActionsItem(getString(R.string.terminal), getString(R.string.terminal_action_item_description), ContextCompat
+                .getDrawable(activity, R.drawable.terminal_icon)))
+
+        actionItemArray.add(ActionsItem(getString(R.string.vehicle_control), getString(R.string.vehicle_action_item_description), ContextCompat
+                .getDrawable(activity, R.drawable.vehicle_control_icon)))
+
+        actionsAdapter = ActionsAdapter(actionItemArray, listItemClickListener)
+        actionsRecyclerView.adapter = actionsAdapter
     }
 
     private fun getDeviceAndConnect(view: View?, btDevice: BluetoothDevice?) { //Connect to selected device
