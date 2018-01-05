@@ -135,7 +135,7 @@ class MyBluetooth(private val activity: Activity?, handler: Handler?, discoveryD
             //Send connected device name to handler
             val message = Message()
             val bundle = Bundle()
-            bundle.putParcelable("device", mDevice)
+            bundle.putParcelable("device", mBluetoothSocket?.remoteDevice)
             message.data = bundle
             mHandler.handleMessage(message)
 

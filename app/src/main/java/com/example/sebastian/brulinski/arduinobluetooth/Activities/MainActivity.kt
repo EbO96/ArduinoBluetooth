@@ -8,13 +8,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.*
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -37,9 +35,11 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     //Debug and fragments tags
     private val TAG = "MainActivity" //Log tag
+    private val connectedDeviceKey = "connected_device"
 
     private val TERMINAL_TAG = "TERMINAL" //fragment tag
     private val VEHICLE_CONTROL_TAG = "VEHICLE_CONTROL" //fragment tag
+    private val CONNECT_FRAGMENT_TAG = "CONNECT_FRAGMENT" //fragment tag
 
     //Request codes and permission codes
     private val LOCATION_PERMISSION_ID = 1001
@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private var isBluetoothOn = false
     private lateinit var bluetoothStateReceiver: BroadcastReceiver
     private lateinit var disconnectReceiver: BroadcastReceiver
+    private var currentConnectedDevice: BluetoothDevice? = null //We save current connected device name to this value
 
     companion object {
         val mBluetoothStateDirector by lazy { BluetoothStateDirector() }
@@ -88,9 +89,11 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                 val DEVICE = "device"
                 val msgData = msg?.data
                 val device = msgData?.getParcelable<BluetoothDevice>(DEVICE)
-                Snackbar.make(findViewById(R.id.mainFragmentsContainer), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(findViewById(R.id.mainFragmentsContainer), "${getString(R.string.connected_to_message)}: ${device!!.name}", Snackbar.LENGTH_SHORT).show()
                 connectToDeviceDialog?.dismiss()
                 connectToDeviceDialog = null
+                isConnected = true
+                mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_CONNECTED)
             }
         }
     }
@@ -99,7 +102,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message?) {
                 Looper.prepare()
-
             }
         }
     }
@@ -121,7 +123,6 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                     }
                     BluetoothDevice.ACTION_PAIRING_REQUEST -> {
                         val extraDevice = p1.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        Log.d(TAG, "pair request from ${extraDevice.name}")
                     }
                 }
             }
@@ -227,20 +228,17 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
                         mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_DISCONNECTED)
                         resetConnection()
                     }
-                    BluetoothDevice.ACTION_ACL_CONNECTED -> {
-                        isConnected = true
-                        mBluetoothStateDirector.notifyAllObservers(BluetoothStates.STATE_DEVICE_CONNECTED)
-                    }
                 }
                 connectToDeviceDialog?.dismiss()
                 connectToDeviceDialog = null
+                currentConnectedDevice = myBluetooth.getBluetoothSocket()?.remoteDevice
             }
         }
+
 
         val disconnectedConnectedIntentFilter = IntentFilter()
 
         disconnectedConnectedIntentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
-        disconnectedConnectedIntentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
 
         registerReceiver(disconnectReceiver, disconnectedConnectedIntentFilter)
 
@@ -250,6 +248,30 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         if (savedInstanceState == null) {
             setConnectToDeviceFragment()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        //Get current connected device name
+        outState?.putParcelable(connectedDeviceKey, currentConnectedDevice)
+        Log.d(TAG, "saved it $currentConnectedDevice")
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        //Get connected device name
+        if (savedInstanceState != null) {
+            currentConnectedDevice = savedInstanceState.getParcelable(connectedDeviceKey)
+            Log.d(TAG, "restored it $currentConnectedDevice")
+
+            //Connect to previous connected device
+            Handler().postDelayed({
+                if (currentConnectedDevice != null) {
+                    connectToDevice(currentConnectedDevice!!)
+                }
+            }, 300)
+        }
+
+        super.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun resetConnection() {
@@ -308,7 +330,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         else supportActionBar?.show()
     }
 
-    private fun setProperTitleAtToolbar(currentVisibleFragment: Fragment){
+    private fun setProperTitleAtToolbar(currentVisibleFragment: Fragment) {
 
         when (currentVisibleFragment) {
 
@@ -359,18 +381,14 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     private fun setConnectToDeviceFragment() {
         val transaction = fragmentManager.beginTransaction()
         currentFragment = connectToDevice
-        mBluetoothStateDirector.registerObserver(connectToDevice)
-        transaction.add(R.id.mainFragmentsContainer, currentFragment)
+        transaction.add(R.id.mainFragmentsContainer, currentFragment, CONNECT_FRAGMENT_TAG)
         transaction.commit()
     }
 
     override fun setTerminalFragment() {
 
-        supportActionBar?.title = ""
-
         val transaction = fragmentManager.beginTransaction()
         currentFragment = terminal
-        mBluetoothStateDirector.registerObserver(terminal)
         transaction.add(R.id.mainFragmentsContainer, currentFragment)
         transaction.addToBackStack(TERMINAL_TAG)
         transaction.commit()
@@ -378,11 +396,8 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
 
     override fun setVehicleControlFragment() {
 
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
         val transaction = fragmentManager.beginTransaction()
         currentFragment = vehicleControl
-        mBluetoothStateDirector.registerObserver(vehicleControl)
         transaction.add(R.id.mainFragmentsContainer, vehicleControl)
         transaction.addToBackStack(VEHICLE_CONTROL_TAG)
         transaction.commit()
@@ -421,6 +436,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         myBluetooth.connectToDevice(device)
         connectToDeviceDialog = showConnectingToDeviceAlert(this, getString(R.string.connecting_to), null, device.name,
                 R.layout.connecting_to_device_dialog)
+
     }
 
     override fun disconnectFromDevice() {
@@ -440,7 +456,7 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
         return null
     }
 
-    override fun getMyBluetoothDevices(): ArrayList<MyBluetoothDevice> {
+    override fun getMyPairedBluetoothDevices(): ArrayList<MyBluetoothDevice> {
 
         for (device in getPairedDevices()) {
             devices.checkIfAlreadyDeviceExistAndAddToList(device, MyBluetoothDevice.Companion.DeviceType.PAIRED)
@@ -450,7 +466,9 @@ class MainActivity : AppCompatActivity(), SetProperFragmentInterface, BluetoothA
     }
 
     override fun applyVehicleWidgetSettings() {
-        (currentFragment as VehicleControlFragment).applyAccelerometerData()
-    }
+        val fragment = supportFragmentManager.findFragmentById(mainFragmentsContainer.id)
 
+        if(fragment is VehicleControlFragment)
+            fragment.applyAccelerometerData()
+    }
 }

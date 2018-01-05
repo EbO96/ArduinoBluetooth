@@ -14,8 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemeNoActionBar">
         <activity
-            android:name=".Activities.MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

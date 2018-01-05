@@ -224,6 +224,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
+        MainActivity.mBluetoothStateDirector.registerObserver(this)
 
         vehicleSpeedSeekBar.setSeekBarMax(speedSeekBar.press(), speedSeekBar.release())
         sendWhenMoved = speedSeekBar.sendWhenItMoves()
@@ -579,6 +580,7 @@ class VehicleControlFragment : Fragment(), BluetoothStateObserversInterface, Sen
 
     override fun onResume() {
         super.onResume()
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         if (accelerometerModeSwitch.isChecked)
             mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL)
     }

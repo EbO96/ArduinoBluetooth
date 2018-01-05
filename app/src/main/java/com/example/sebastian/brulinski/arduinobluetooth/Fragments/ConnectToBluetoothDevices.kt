@@ -75,6 +75,7 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)//This fragment has own options menu
+        MainActivity.mBluetoothStateDirector.registerObserver(this)
 
         //Set devices recycler
         setDevicesRecycler()
@@ -86,8 +87,8 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
             bluetoothActionsCallback.stopDiscoveringDevices()
             discoverDevicesRootLayout.visibility = View.GONE
         }
-
     }
+
 
     private fun loginOrCreateAccount(email: String, password: String, dialog: AlertDialog) {
         val mAuth = FirebaseAuth.getInstance()
@@ -121,10 +122,10 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
 
         //This listener responses at click at devices list
         val clickListener = View.OnClickListener { view ->
-            getDeviceAndConnect(view, null)
+            getDeviceAndConnect(view, null,null)
         }
         //Set devices adapter
-        devicesAdapter = DevicesAdapter(bluetoothActionsCallback.getMyBluetoothDevices(), activity, clickListener)
+        devicesAdapter = DevicesAdapter(bluetoothActionsCallback.getMyPairedBluetoothDevices(), activity, clickListener)
         devicesRecycler.adapter = devicesAdapter
     }
 
@@ -154,13 +155,13 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
         actionsRecyclerView.adapter = actionsAdapter
     }
 
-    private fun getDeviceAndConnect(view: View?, btDevice: BluetoothDevice?) { //Connect to selected device
+    private fun getDeviceAndConnect(view: View?, deviceName: String?, btDevice: BluetoothDevice?) { //Connect to selected device
         val device: BluetoothDevice?
 
-        device = if (view != null) {
-            val foundDevice = findDeviceByName("${view.findViewById<TextView>(R.id.deviceNameTextView).text}")
-            foundDevice
+        device = if (view != null || deviceName != null) {
+            val deviceNameToFind = deviceName ?: "${view?.findViewById<TextView>(R.id.deviceNameTextView)?.text}"
 
+            findDeviceByName(deviceNameToFind)
         } else btDevice
 
         if (device != null) {
@@ -173,7 +174,7 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
     //Get BluetoothDevice object by his name displayed on devices list
     private fun findDeviceByName(deviceName: String): BluetoothDevice? {
 
-        for (myBluetoothDevice in bluetoothActionsCallback.getMyBluetoothDevices()) {
+        for (myBluetoothDevice in bluetoothActionsCallback.getMyPairedBluetoothDevices()) {
 
             if (myBluetoothDevice.device != null) {
                 val device = myBluetoothDevice.device
@@ -191,13 +192,17 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
             showDisconnectMessage()
             disconnectFromWeb()
             connectedDeviceView = null
+            Log.d(TAG, "disconnected")
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_CONNECTED) {
-            connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.VISIBLE
+            activity.runOnUiThread{
+                connectedDeviceView?.findViewById<ImageView>(R.id.connectedImageView)?.visibility = View.VISIBLE
+                Log.d(TAG, "connected")
+            }
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_DEVICE_FOUND) {
             devicesAdapter.notifyDataSetChanged()
         } else if (state == MainActivity.Companion.BluetoothStates.STATE_BT_ON) {
             if (devicesRecycler.adapter != null) {
-                bluetoothActionsCallback.getMyBluetoothDevices()
+                bluetoothActionsCallback.getMyPairedBluetoothDevices()
                 devicesAdapter.notifyDataSetChanged()
             } else setDevicesRecycler()
         }
@@ -256,4 +261,5 @@ class ConnectToBluetoothDevices : Fragment(), BluetoothStateObserversInterface {
         bluetoothActionsCallback.resetConnection()
         MainActivity.mBluetoothStateDirector.unregisterObserver(this)
     }
+
 }

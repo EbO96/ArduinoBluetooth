@@ -17,22 +17,23 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
 
     //Tags and flags
     private val TAG = "Terminal"
+    private val STATE_TERMINAL_TEXT_KEY = "terminal_text_key"
     private var appendNewLine = true
 
     //Callbacks
     private lateinit var bluetoothActionsCallback: BluetoothActionsInterface
 
-    private val sendText = StringBuilder()
+    private var sendText = StringBuilder()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
             layoutInflater.inflate(R.layout.fragment_terminal, container, false)
 
-
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(true)
+        MainActivity.mBluetoothStateDirector.registerObserver(this)
 
         //Change texts color at red when no devices connected
         if (!bluetoothActionsCallback.isConnectedToDevice())
@@ -61,7 +62,18 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
             sendText.delete(0, sendText.length)
             true
         }
+
+        if(savedInstanceState != null) {
+            sendText = savedInstanceState.getSerializable(STATE_TERMINAL_TEXT_KEY) as StringBuilder
+            terminalTextView.text = "$sendText"
+        }
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable(STATE_TERMINAL_TEXT_KEY, sendText)
+        super.onSaveInstanceState(outState)
+    }
+
 
     private fun sendMessage() {
         var text = "${terminalEditText.text}"
@@ -86,11 +98,13 @@ class Terminal : Fragment(), BluetoothStateObserversInterface {
     }
 
     private fun changeTextColors(hexColor: String) {
-        terminalTextView.setTextColor(Color.parseColor(hexColor))
-        terminalEditText.setTextColor(Color.parseColor(hexColor))
-        terminalEditText.setHintTextColor(Color.parseColor(hexColor))
-        sendMessageToDeviceImageButton.setColorFilter(Color.parseColor(hexColor))
-        clearMessageImageButton.setColorFilter(Color.parseColor(hexColor))
+        activity.runOnUiThread {
+            terminalTextView.setTextColor(Color.parseColor(hexColor))
+            terminalEditText.setTextColor(Color.parseColor(hexColor))
+            terminalEditText.setHintTextColor(Color.parseColor(hexColor))
+            sendMessageToDeviceImageButton.setColorFilter(Color.parseColor(hexColor))
+            clearMessageImageButton.setColorFilter(Color.parseColor(hexColor))
+        }
     }
 
     override fun onAttach(context: Context?) {
